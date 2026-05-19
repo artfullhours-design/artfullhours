@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtfullHours | Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1f1b17;
+      --muted: #6b6358;
+      --brand: #e56a2d;
+      --accent: #1b7f70;
+      --line: #e8dac7;
+      --danger: #bb2323;
+      --good: #12773d;
+      --card: rgba(255, 252, 246, 0.84);
+      --shadow: 0 10px 24px rgba(41, 32, 26, 0.12);
+      --bg-image: url("./assets/Artfullhourslogo.png");
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(16, 12, 8, 0.38), rgba(16, 12, 8, 0.2)),
+        radial-gradient(circle at 12% 8%, rgba(229,106,45,0.18), transparent 40%),
+        radial-gradient(circle at 88% 88%, rgba(27,127,112,0.2), transparent 42%),
+        linear-gradient(130deg, #f9f2e7 0%, #f3ecdf 60%, #efe5d5 100%);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: var(--bg-image) center center / cover no-repeat;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1, h2, h3 {
+      font-family: "DM Serif Display", serif;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 16px 0 80px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 251, 244, 0.8);
+      padding: 12px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 8px;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+
+    .bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .stat {
+      border: 1px solid #e7d5c2;
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    .stat b { font-size: 24px; display: block; margin-top: 4px; }
+
+    .layout {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.2fr 1fr;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .stack { display: grid; gap: 10px; }
+    .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #d8c8b6;
+      border-radius: 10px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: rgba(255,255,255,0.86);
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary { background: var(--brand); color: #fff; }
+    .secondary { background: var(--accent); color: #fff; }
+    .ghost { background: #f0e3d2; color: #5a3c2e; }
+    .danger { background: var(--danger); color: #fff; }
+
+    .note { color: var(--muted); font-size: 13px; }
+    .msg { min-height: 20px; margin-top: 4px; font-weight: 700; color: var(--good); }
+
+    .list-item {
+      border: 1px solid #e4d4c1;
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,0.82);
+      margin-bottom: 8px;
+    }
+
+    .product-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 72px 1fr;
+      align-items: start;
+    }
+
+    .product-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid #dfceb9;
+      background: #f6eee3;
+    }
+
+    .request-thumb {
+      width: 92px;
+      height: 92px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid #dfceb9;
+      background: #f6eee3;
+      margin-top: 8px;
+      display: block;
+    }
+
+    /* ── order card ── */
+    .order-card {
+      border: 1px solid #e4d4c1;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.88);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .order-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(229,106,45,0.08);
+      border-bottom: 1px solid #e8d8c6;
+    }
+    .order-body { padding: 10px 12px; display: grid; gap: 6px; }
+    .order-foot { padding: 8px 12px; border-top: 1px solid #e8d8c6; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .chip-placed    { background:#fff3cd; color:#856404; }
+    .chip-confirmed { background:#cff4d2; color:#155724; }
+    .chip-packed    { background:#d0e8ff; color:#084298; }
+    .chip-shipped   { background:#d0e8ff; color:#084298; }
+    .chip-out_for_delivery { background:#fde8b8; color:#7a4a00; }
+    .chip-delivered { background:#cff4d2; color:#155724; }
+    .chip-cancelled { background:#fde2e2; color:#7a0000; }
+    .chip-cod  { background:#f0e3d2; color:#5a3c2e; }
+    .chip-upi  { background:#ddf4e8; color:#155724; }
+    .chip-card { background:#d8eaff; color:#084298; }
+    .chip-paid    { background:#cff4d2; color:#155724; }
+    .chip-pending { background:#fff3cd; color:#856404; }
+    .order-items-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
+    .order-items-table th { text-align:left; color:var(--muted); font-weight:600; padding:3px 6px; border-bottom:1px solid #e8d8c6; }
+    .order-items-table td { padding:4px 6px; vertical-align:middle; }
+    .order-items-table tr:not(:last-child) td { border-bottom:1px solid #f0e8de; }
+    /* ── product edit form ── */
+    .edit-form {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #e8d8c6;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.9);
+    }
+    .edit-form.open { display: grid; gap: 8px; }
+
+    @media (max-width: 980px) {
+      .bar { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="bar">
+      <div>
+        <h1>Admin Panel</h1>
+        <p class="note" id="adminIdentity">Checking access...</p>
+      </div>
+      <div class="bar-actions">
+        <button class="ghost" onclick="openStore()">Open Store</button>
+        <button class="danger" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <article class="stat"><span class="note">Customers</span><b id="stUsers">0</b></article>
+      <article class="stat"><span class="note">Orders</span><b id="stOrders">0</b></article>
+      <article class="stat"><span class="note">Visits</span><b id="stVisits">0</b></article>
+      <article class="stat"><span class="note">Activity Logs</span><b id="stActivities">0</b></article>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
+      <h2>📦 Orders Management</h2>
+      <p class="note" style="margin-bottom:8px;">Every order is shown below — who ordered, what they bought, how they paid, and current status. Use the quick buttons to accept, reject, or update.</p>
+      <div id="adminOrders"></div>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
+      <h2>🎨 Customization Requests</h2>
+      <p class="note">Review customer ideas, check reference photos, and reply if the item can be made.</p>
+      <div id="adminCustomRequests" style="margin-top:8px;"></div>
+    </section>
+
+    <section class="layout">
+      <section class="panel stack">
+        <h2>Add Product</h2>
+        <p class="note">Upload image here and it will show on the main website product cards.</p>
+        <div class="row">
+          <input id="prName" placeholder="Product name" />
+          <input id="prCategory" placeholder="Category" />
+          <input id="prPrice" type="number" placeholder="Price" />
+          <input id="prStock" type="number" placeholder="Stock" />
+        </div>
+        <textarea id="prDesc" placeholder="Description"></textarea>
+        <div class="row">
+          <input id="prImageUrl" placeholder="Image URL (optional)" />
+          <input id="prImageFile" type="file" accept="image/*" />
+        </div>
+        <button class="primary" onclick="createProduct()">Upload Product</button>
+
+        <h3>Product Inventory</h3>
+        <p class="note">Shows image, price, stock, and status (In Stock / Out of Stock / Inactive).</p>
+        <div id="adminInventory"></div>
+      </section>
+
+      <section class="panel stack">
+        <h2>User Accounts</h2>
+        <p class="note">See who created accounts and latest login time.</p>
+        <div id="adminCustomers"></div>
+
+        <h3>Recent User Activity</h3>
+        <p class="note">Includes signup, login, cart, wishlist, orders, and other actions with timestamps.</p>
+        <div id="adminActivities"></div>
+      </section>
+    </section>
+
+    <div id="appMsg" class="msg"></div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem("token") || "";
+    let currentUser = null;
+
+    const prName = document.getElementById("prName");
+    const prCategory = document.getElementById("prCategory");
+    const prPrice = document.getElementById("prPrice");
+    const prStock = document.getElementById("prStock");
+    const prDesc = document.getElementById("prDesc");
+    const prImageUrl = document.getElementById("prImageUrl");
+    const prImageFile = document.getElementById("prImageFile");
+
+    function setMsg(text, bad = false) {
+      const el = document.getElementById("appMsg");
+      el.style.color = bad ? "var(--danger)" : "var(--good)";
+      el.textContent = text;
+      setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
+    }
+
+    async function request(path, options = {}) {
+      const headers = options.headers || {};
+      if (!(options.body instanceof FormData)) {
+        headers["Content-Type"] = headers["Content-Type"] || "application/json";
+      }
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await fetch(path, { ...options, headers });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Request failed");
+      return data;
+    }
+
+    function openStore() {
+      window.location.href = "/";
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+
+    function productImage(url) {
+      return url || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=400&q=60";
+    }
+
+    function toTime(value) {
+      if (!value) return "-";
+      return new Date(value).toLocaleString();
+    }
+
+    function whatsappLink(phone, message) {
+      const digits = String(phone || "").replace(/\D/g, "");
+      if (!digits) return "";
+      const normalized = digits.length === 10 ? `91${digits}` : digits;
+      return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+    }
+
+    function prettyAction(action) {
+      const map = {
+        ACCOUNT_CREATED: "Account Created",
+        LOGIN_PASSWORD: "Login (Password)",
+        LOGIN_OTP: "Login (OTP)",
+        OTP_REQUESTED: "OTP Requested",
+        RESET_OTP_REQUESTED: "Reset OTP Requested",
+        PASSWORD_RESET: "Password Reset",
+        ACCOUNT_UPDATED: "Account Updated",
+        WISHLIST_ADDED: "Wishlist Added",
+        WISHLIST_REMOVED: "Wishlist Removed",
+        CART_ADDED: "Cart Added",
+        CART_UPDATED: "Cart Updated",
+        CART_QUANTITY_CHANGED: "Cart Quantity Changed",
+        CART_REMOVED: "Cart Removed",
+        ORDER_PLACED: "Order Placed",
+        ORDER_STATUS_UPDATED: "Order Status Updated",
+        CUSTOM_REQUEST_CREATED: "Customization Request Created",
+        CUSTOM_REQUEST_UPDATED: "Customization Request Updated",
+        PRODUCT_CREATED: "Product Created",
+        PRODUCT_UPDATED: "Product Updated",
+        PRODUCT_DEACTIVATED: "Product Deactivated",
+        VISIT_RECORDED: "Page Visited"
+      };
+      return map[action] || action;
+    }
+
+    async function createProduct() {
+      try {
+        const form = new FormData();
+        form.append("name", prName.value);
+        form.append("category", prCategory.value || "Crochet");
+        form.append("description", prDesc.value || "");
+        form.append("price", prPrice.value || "0");
+        form.append("stock", prStock.value || "0");
+        if (prImageUrl.value) form.append("imageUrl", prImageUrl.value);
+        if (prImageFile.files[0]) form.append("image", prImageFile.files[0]);
+
+        await request("/api/products", { method: "POST", body: form });
+        setMsg("Product uploaded successfully.");
+
+        prName.value = "";
+        prCategory.value = "";
+        prDesc.value = "";
+        prPrice.value = "";
+        prStock.value = "";
+        prImageUrl.value = "";
+        prImageFile.value = "";
+
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function updateStock(productId) {
+      try {
+        const stock = Number(document.getElementById(`st-${productId}`).value || 0);
+        await request(`/api/products/${productId}`, { method: "PUT", body: JSON.stringify({ stock }) });
+        setMsg("Stock updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function deactivateProduct(productId) {
+      try {
+        await request(`/api/products/${productId}`, { method: "DELETE" });
+        setMsg("Product marked inactive.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function updateOrderStatus(orderId) {
+      try {
+        const orderStatus = document.getElementById(`stt-${orderId}`).value;
+        const deliveryAgentPhone = document.getElementById(`ag-${orderId}`).value;
+        const note = document.getElementById(`tn-${orderId}`).value;
+        const ownerReply = document.getElementById(`or-${orderId}`).value;
+        await request(`/api/orders/${orderId}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ orderStatus, deliveryAgentPhone, trackingLocation: { note }, ownerReply })
+        });
+        setMsg("Order status updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function quickOrderAction(orderId, nextStatus) {
+      const statusEl = document.getElementById(`stt-${orderId}`);
+      if (statusEl) statusEl.value = nextStatus;
+      await updateOrderStatus(orderId);
+    }
+
+    async function loadAnalytics() {
+      const data = await request("/api/admin/analytics");
+
+      document.getElementById("stUsers").textContent = data.totalUsers;
+      document.getElementById("stOrders").textContent = data.totalOrders;
+      document.getElementById("stVisits").textContent = data.totalVisits;
+      document.getElementById("stActivities").textContent = (data.recentActivities || []).length;
+
+      document.getElementById("adminCustomers").innerHTML = data.customers.length
+        ? data.customers.map((customer) => `
+          <div class="list-item">
+            <b>${customer.name}</b><br>
+            <span class="note">Email: ${customer.email || "Not provided"}</span><br>
+            <span class="note">Phone: ${customer.phone || "Not provided"}</span><br>
+            <span class="note">Account Created: ${toTime(customer.createdAt)}</span><br>
+            <span class="note">Last Login: ${customer.lastLoginAt ? toTime(customer.lastLoginAt) : "Never logged in"}</span>
+          </div>`).join("")
+        : "<p class='note'>No customers yet.</p>";
+    }
+
+    async function saveProductEdit(productId) {
+      try {
+        const name     = document.getElementById(`ep-name-${productId}`).value.trim();
+        const category = document.getElementById(`ep-cat-${productId}`).value.trim();
+        const desc     = document.getElementById(`ep-desc-${productId}`).value.trim();
+        const price    = document.getElementById(`ep-price-${productId}`).value;
+        const stock    = document.getElementById(`ep-stock-${productId}`).value;
+        const imageUrl = document.getElementById(`ep-img-${productId}`).value.trim();
+        if (!name) { setMsg("Product name is required", true); return; }
+        await request(`/api/products/${productId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name, category, description: desc, price: Number(price), stock: Number(stock), imageUrl })
+        });
+        setMsg("Product updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    function toggleEditForm(productId) {
+      const form = document.getElementById(`edit-form-${productId}`);
+      if (!form) return;
+      form.classList.toggle("open");
+    }
+
+    async function loadProducts() {
+      const data = await request("/api/admin/analytics");
+      document.getElementById("adminInventory").innerHTML = data.products.length
+        ? data.products.map((product) => {
+          const status = product.isActive && product.stock > 0
+            ? "<span style='color:var(--good);font-weight:700;'>● In Stock</span>"
+            : (product.isActive
+                ? "<span style='color:#d46800;font-weight:700;'>● Out of Stock</span>"
+                : "<span style='color:var(--danger);font-weight:700;'>● Inactive</span>");
+          const safeDesc = (product.description || "").replace(/'/g, "&#39;");
+          const safeImgUrl = (product.imageUrl || "").replace(/'/g, "&#39;");
+          return `
+            <div class="list-item product-row">
+              <img class="product-thumb" src="${productImage(product.imageUrl)}" alt="${product.name}" />
+              <div>
+                <b>${product.name}</b>
+                <span style="float:right;">${status}</span><br>
+                <span class="note">Category: ${product.category || "Other"} &nbsp;|&nbsp; Price: <b>INR ${product.price}</b> &nbsp;|&nbsp; Stock: <b>${product.stock}</b></span>
+                <div class="row" style="margin-top:8px;">
+                  <button class="ghost" onclick="toggleEditForm('${product._id}')">✏️ Edit Product</button>
+                  <button class="danger" onclick="deactivateProduct('${product._id}')">Deactivate</button>
+                </div>
+                <div id="edit-form-${product._id}" class="edit-form">
+                  <input id="ep-name-${product._id}"  placeholder="Product name"  value='${product.name.replace(/'/g,"&#39;")}' />
+                  <input id="ep-cat-${product._id}"   placeholder="Category"      value='${(product.category||"Crochet").replace(/'/g,"&#39;")}' />
+                  <textarea id="ep-desc-${product._id}" placeholder="Description" style="min-height:56px;">${safeDesc}</textarea>
+                  <div class="row">
+                    <input id="ep-price-${product._id}" type="number" placeholder="Price"  value="${product.price}" />
+                    <input id="ep-stock-${product._id}" type="number" placeholder="Stock"  value="${product.stock}" />
+                  </div>
+                  <input id="ep-img-${product._id}" placeholder="Image URL (leave blank to keep current)" value='${safeImgUrl}' />
+                  <button class="secondary" onclick="saveProductEdit('${product._id}')">💾 Save Changes</button>
+                </div>
+              </div>
+            </div>`;
+        }).join("")
+        : "<p class='note'>No products added yet.</p>";
+    }
+
+    async function loadOrders() {
+      const data = await request("/api/orders");
+      const el = document.getElementById("adminOrders");
+      if (!data.orders.length) {
+        el.innerHTML = "<p class='note'>No orders yet.</p>";
+        return;
+      }
+
+      el.innerHTML = data.orders.map((o) => {
+        const customer = o.userId && typeof o.userId === "object"
+          ? { name: o.userId.name || "Customer", email: o.userId.email || "", phone: o.userId.phone || "" }
+          : { name: "Customer", email: o.supportEmail || "", phone: "" };
+        const supportEmail = o.supportEmail || customer.email || "—";
+        const statusKey = (o.orderStatus || "PLACED").toLowerCase();
+        const payKey = (o.paymentMethod || "COD").toLowerCase();
+        const paidKey = (o.paymentStatus || "PENDING").toLowerCase();
+        const itemRows = o.items.map((i) =>
+          `<tr><td>${i.name}</td><td style='text-align:center;font-weight:700;'>${i.quantity}</td><td style='text-align:right;'>INR ${i.price}</td></tr>`
+        ).join("");
+        const placed = toTime(o.createdAt);
+        return `<div class='order-card'>
+          <div class='order-head'>
+            <div>
+              <b>Order #${o._id.slice(-6)}</b>
+              &nbsp;<span class='chip chip-${statusKey}'>${o.orderStatus}</span>
+              &nbsp;<span class='chip chip-${payKey}'>${o.paymentMethod}</span>
+              &nbsp;<span class='chip chip-${paidKey}'>${o.paymentStatus}</span>
+            </div>
+            <span class='note' style='font-size:12px;'>${placed}</span>
+          </div>
+          <div class='order-body'>
+            <div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;'>
+              <div><span class='note'>Customer</span><br><b>${customer.name}</b></div>
+              <div><span class='note'>Contact</span><br>${customer.email || customer.phone || "—"}</div>
+              <div><span class='note'>Support email</span><br>${supportEmail}</div>
+              <div><span class='note'>Total</span><br><b>INR ${Number(o.totalAmount||0).toFixed(0)}</b></div>
+            </div>
+            <table class='order-items-table'>
+              <thead><tr><th>Item</th><th style='text-align:center;'>Qty</th><th style='text-align:right;'>Price</th></tr></thead>
+              <tbody>${itemRows}</tbody>
+            </table>
+            ${o.ownerReply ? `<div style='font-size:13px;margin-top:4px;'><span class='note'>Your reply: </span>${o.ownerReply}</div>` : ""}
+          </div>
+          <div class='order-foot'>
+            <select id='stt-${o._id}' style='width:auto;flex:1;min-width:130px;'>
+              <option ${o.orderStatus==="PLACED"?"selected":""}>PLACED</option>
+              <option ${o.orderStatus==="CONFIRMED"?"selected":""}>CONFIRMED</option>
+              <option ${o.orderStatus==="PACKED"?"selected":""}>PACKED</option>
+              <option ${o.orderStatus==="SHIPPED"?"selected":""}>SHIPPED</option>
+              <option ${o.orderStatus==="OUT_FOR_DELIVERY"?"selected":""}>OUT_FOR_DELIVERY</option>
+              <option ${o.orderStatus==="DELIVERED"?"selected":""}>DELIVERED</option>
+              <option ${o.orderStatus==="CANCELLED"?"selected":""}>CANCELLED</option>
+            </select>
+            <input id='ag-${o._id}' style='flex:1;min-width:120px;' placeholder='Delivery phone' value='${o.deliveryAgentPhone||""}'  />
+            <input id='tn-${o._id}' style='flex:1;min-width:120px;' placeholder='Tracking note'  value='${(o.trackingLocation&&o.trackingLocation.note)||""}'  />
+            <input id='or-${o._id}' style='flex:2;min-width:160px;' placeholder='Reply to customer' value='${(o.ownerReply||"").replace(/'/g,"&#39;")}' />
+            <button class='ghost'      onclick="quickOrderAction('${o._id}','CONFIRMED')">✅ Accept</button>
+            <button class='danger'     onclick="quickOrderAction('${o._id}','CANCELLED')">❌ Reject</button>
+            <button class='secondary'  onclick="updateOrderStatus('${o._id}')">💾 Update</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    async function loadActivities() {
+      const data = await request("/api/admin/activities?limit=160");
+      const list = data.activities || [];
+      document.getElementById("adminActivities").innerHTML = list.length
+        ? list.map((activity) => {
+          const name = activity.actorName || (activity.userId && activity.userId.name) || "Unknown";
+          const contact = activity.actorEmail || activity.actorPhone || "No contact";
+          const meta = activity.meta && Object.keys(activity.meta).length
+            ? `<br><span class='note'>Details: ${JSON.stringify(activity.meta)}</span>`
+            : "";
+          return `<div class='list-item'>
+            <b>${prettyAction(activity.action)}</b><br>
+            <span class='note'>User: ${name} | ${contact}</span><br>
+            <span class='note'>Time: ${toTime(activity.createdAt)}</span><br>
+            <span class='note'>Route: ${activity.route || "-"}</span>
+            ${meta}
+          </div>`;
+        }).join("")
+        : "<p class='note'>No activities yet.</p>";
+    }
+
+    async function updateCustomRequest(requestId) {
+      try {
+        const status = document.getElementById(`crs-${requestId}`).value;
+        const adminReply = document.getElementById(`crr-${requestId}`).value;
+        await request(`/api/admin/custom-requests/${requestId}`, {
+          method: "PUT",
+          body: JSON.stringify({ status, adminReply })
+        });
+        setMsg("Customization request updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function loadCustomRequests() {
+      const data = await request("/api/admin/analytics");
+      const requests = data.customRequests || [];
+      const el = document.getElementById("adminCustomRequests");
+      if (!requests.length) {
+        el.innerHTML = "<p class='note'>No customization requests yet.</p>";
+        return;
+      }
+
+      el.innerHTML = requests.map((item) => {
+        const customer = item.userId && typeof item.userId === "object"
+          ? `${item.userId.name || item.customerName || "Customer"}${item.customerEmail ? ` | ${item.customerEmail}` : ""}${item.customerPhone ? ` | ${item.customerPhone}` : ""}`
+          : `${item.customerName || "Customer"}${item.customerEmail ? ` | ${item.customerEmail}` : ""}${item.customerPhone ? ` | ${item.customerPhone}` : ""}`;
+        const waLink = whatsappLink(item.customerPhone, `Hello ${item.customerName || ""}, this is ArtfullHours regarding your customization request: ${item.title}`);
+        return `<div class='list-item'>
+          <b>${item.title}</b><br>
+          <span class='note'>Customer: ${customer}</span><br>
+          <span class='note'>Description: ${item.description}</span><br>
+          <span class='note'>Status: ${String(item.status || "NEW").replace(/_/g, " ")}</span><br>
+          <span class='note'>Submitted: ${toTime(item.createdAt)}</span><br>
+          ${item.referenceImageUrl ? `<a href='${item.referenceImageUrl}' target='_blank' rel='noopener noreferrer'><img class='request-thumb' src='${item.referenceImageUrl}' alt='Reference for ${item.title}' /></a>` : ""}
+          <div class='row' style='margin-top:8px;'>
+            <select id='crs-${item._id}'>
+              <option ${item.status === "NEW" ? "selected" : ""}>NEW</option>
+              <option ${item.status === "REVIEWING" ? "selected" : ""}>REVIEWING</option>
+              <option ${item.status === "POSSIBLE" ? "selected" : ""}>POSSIBLE</option>
+              <option ${item.status === "NOT_POSSIBLE" ? "selected" : ""}>NOT_POSSIBLE</option>
+              <option ${item.status === "COMPLETED" ? "selected" : ""}>COMPLETED</option>
+            </select>
+            <input id='crr-${item._id}' placeholder='Reply to customer' value='${(item.adminReply || "").replace(/'/g, "&#39;")}' />
+            <button class='secondary' onclick="updateCustomRequest('${item._id}')">Save Reply</button>
+          </div>
+          ${waLink ? `<div style='margin-top:8px;'><a class='ghost' style='display:inline-block; text-decoration:none;' href='${waLink}' target='_blank' rel='noopener noreferrer'>Reply on WhatsApp</a></div>` : ""}
+        </div>`;
+      }).join("");
+    }
+
+    async function refreshAll() {
+      await Promise.all([loadAnalytics(), loadProducts(), loadOrders(), loadActivities(), loadCustomRequests()]);
+    }
+
+    async function boot() {
+      if (!token) {
+        window.location.href = "/";
+        return;
+      }
+
+      try {
+        const me = await request("/api/auth/me");
+        currentUser = me.user;
+        if (currentUser.role !== "admin") {
+          window.location.href = "/";
+          return;
+        }
+
+        document.getElementById("adminIdentity").textContent = `Logged in as ${currentUser.name} (${currentUser.email || "admin"})`;
+        await refreshAll();
+      } catch (_e) {
+        logout();
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtfullHours | Shop Handmade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8f2e8;
+      --ink: #1f1b17;
+      --muted: #6b6358;
+      --card: rgba(255, 252, 246, 0.78);
+      --brand: #e56a2d;
+      --brand-dark: #b64616;
+      --accent: #1b7f70;
+      --line: #e8dac7;
+      --danger: #bb2323;
+      --good: #12773d;
+      --shadow: 0 14px 30px rgba(41, 32, 26, 0.12);
+      --auth-bg-image: url("./assets/Artfullhourslogo.png");
+      --bg-image-opacity: 0.2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(16, 12, 8, 0.44), rgba(16, 12, 8, 0.18)),
+        radial-gradient(circle at 12% 8%, rgba(229,106,45,0.18), transparent 38%),
+        radial-gradient(circle at 88% 88%, rgba(27,127,112,0.18), transparent 38%),
+        linear-gradient(130deg, #f9f2e7 0%, #f3ecdf 60%, #efe5d5 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--auth-bg-image);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center center;
+      opacity: var(--bg-image-opacity);
+      pointer-events: none;
+      z-index: -1;
+      background-attachment: fixed;
+      transform: translateZ(0);
+    }
+
+    h1, h2, h3 {
+      font-family: "DM Serif Display", serif;
+      font-weight: 400;
+      line-height: 1.18;
+    }
+
+    .container {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 20px 0 110px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .top-nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      padding: 8px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-row {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search input {
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .icon-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(229, 106, 45, 0.1);
+    }
+
+    .categories {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 8px 12px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--line);
+    }
+
+    .cat-chip {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .cat-chip:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .cat-chip.active {
+      background: var(--brand);
+      color: white;
+      border-color: var(--brand);
+    }
+
+    .hero {
+      width: min(1220px, calc(100% - 24px));
+      margin: 20px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(229,106,45,0.1), rgba(27,127,112,0.1));
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .hero h2 { font-size: 24px; margin-bottom: 8px; }
+    .hero p { color: var(--muted); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .panels {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .product {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .product:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .product img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .product .body {
+      padding: 12px;
+    }
+
+    .product h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .product .price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--brand);
+      margin: 8px 0;
+    }
+
+    .product .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .list-item {
+      padding: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .list-item b { display: block; margin-bottom: 4px; }
+    .list-item .note { display: block; margin-top: 4px; }
+
+    .request-thumb {
+      max-width: 100%;
+      max-height: 150px;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(229, 106, 45, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .row input:nth-child(3),
+    .row input:nth-child(4) {
+      grid-column: auto / span 1;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .primary {
+      background: var(--brand);
+      color: white;
+    }
+
+    .primary:hover:not(:disabled) {
+      background: var(--brand-dark);
+    }
+
+    .secondary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary:hover:not(:disabled) {
+      background: #0d5a4f;
+    }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .ghost:hover {
+      background: rgba(229, 106, 45, 0.05);
+    }
+
+    .danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .danger:hover:not(:disabled) {
+      background: #8e1a1a;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--good);
+      color: white;
+      min-height: 20px;
+      border-radius: 8px;
+    }
+
+    .account-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .stat-card.clickable {
+      cursor: pointer;
+    }
+
+    .stat-card.clickable:hover {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(229, 106, 45, 0.1);
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-card .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .account-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .account-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .account-card h3 { font-size: 16px; }
+
+    .history-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .account-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .account-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 800px) {
+      .top-row {
+        grid-template-columns: 1fr;
+      }
+
+      .search {
+        grid-column: 1 / -1;
+      }
+
+      .account-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .products {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="top-nav">
+      <div class="top-row">
+        <div class="logo">Art Full Hours</div>
+        <div class="search">
+          <input id="searchInput" placeholder="Search crochet keychains, gifts, paintings..." oninput="renderProducts()" />
+          <button class="primary" onclick="renderProducts()">Search</button>
+        </div>
+        <div class="icon-btns">
+          <button class="icon-btn" title="Home" onclick="switchPanel('shop')">🏠</button>
+          <button class="icon-btn" title="Wishlist" onclick="switchPanel('wishlist')">❤</button>
+          <button class="icon-btn" title="Cart" onclick="switchPanel('cart')">🛒</button>
+          <button class="icon-btn" title="Orders" onclick="switchPanel('orders')">📦</button>
+          <button class="icon-btn" title="Account" onclick="switchPanel('account')">👤</button>
+        </div>
+      </div>
+
+      <div class="categories" id="categoryBar"></div>
+    </header>
+
+    <section class="hero">
+      <h2 id="welcomeLine">Welcome to ArtfullHours</h2>
+      <p class="note" id="roleLine">Handmade treasures crafted with heart, picked for your next favorite corner.</p>
+    </section>
+
+    <section id="shopSection" class="panel active">
+      <div class="products" id="products"></div>
+    </section>
+
+    <section class="panels">
+      <section id="panel-cart" class="panel card" style="padding:14px;">
+        <h2>Your Cart</h2>
+        <div id="cartList" style="margin-top:10px;"></div>
+        <input id="orderSupportEmail" style="margin-top:10px;" placeholder="Support email for order updates" />
+        <div class="row" style="margin-top:10px;">
+          <select id="paymentMethod">
+            <option value="COD">Cash on Delivery</option>
+            <option value="UPI">UPI</option>
+            <option value="CARD">Card</option>
+          </select>
+          <button class="primary" onclick="checkout()">Buy Now</button>
+        </div>
+      </section>
+
+      <section id="panel-wishlist" class="panel card" style="padding:14px;">
+        <h2>Wishlist</h2>
+        <div id="wishlistList" style="margin-top:10px;"></div>
+      </section>
+
+      <section id="panel-orders" class="panel card" style="padding:14px;">
+        <h2>Orders & Tracking</h2>
+        <div id="ordersList" style="margin-top:10px;"></div>
+      </section>
+
+      <section id="panel-customize" class="panel card" style="padding:14px;">
+        <h2>Customize Your Idea</h2>
+        <p class="note">Upload a reference photo and describe what you want made. The owner will see it in admin panel and can reply if it is possible.</p>
+        <div class="stack" style="margin-top:10px;">
+          <input id="customTitle" placeholder="What would you like customized?" />
+          <textarea id="customDescription" placeholder="Describe colors, size, theme, names, or special details you want."></textarea>
+          <div class="row">
+            <input id="customImageUrl" placeholder="Reference image URL (optional)" />
+            <input id="customImageFile" type="file" accept="image/*" />
+          </div>
+          <button class="primary" onclick="submitCustomRequest()">Send Customization Request</button>
+        </div>
+
+        <h3 style="margin-top:16px;">Your Custom Requests</h3>
+        <div id="customRequestList" style="margin-top:8px;"></div>
+      </section>
+
+      <section id="panel-account" class="panel card" style="padding:14px;">
+        <h2>Your Account</h2>
+        <p class="note">Manage your profile, review purchases, and quickly jump back to shopping.</p>
+
+        <div class="account-stats">
+          <div class="stat-card">
+            <div class="label">Total Orders</div>
+            <div class="value" id="accTotalOrders">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Total Spent</div>
+            <div class="value" id="accTotalSpent">INR 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Recent Purchase</div>
+            <div class="value" id="accRecentPurchase">-</div>
+          </div>
+          <div class="stat-card clickable" role="button" tabindex="0" onclick="switchPanel('customize')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchPanel('customize');}">
+            <div class="label">Custom Orders</div>
+            <div class="value" id="accCustomOrders">0</div>
+          </div>
+        </div>
+
+        <div class="account-grid">
+          <div class="account-card">
+            <h3 style="margin-bottom:8px;">Profile Details</h3>
+            <div class="stack" style="margin-top:8px;">
+              <div class="row">
+                <input id="accName" placeholder="Full Name" />
+                <input id="accPhone" placeholder="Phone" />
+              </div>
+              <div class="row">
+                <input id="accEmail" placeholder="Email" disabled />
+                <input id="accPincode" placeholder="Pincode" />
+              </div>
+              <input id="accLine1" placeholder="Address line 1" />
+              <input id="accLine2" placeholder="Address line 2" />
+              <div class="row">
+                <input id="accCity" placeholder="City" />
+                <input id="accState" placeholder="State" />
+              </div>
+              <button class="secondary" onclick="saveAccount()">Save Profile</button>
+            </div>
+          </div>
+
+          <div class="account-card">
+            <h3 style="margin-bottom:8px;">Purchase History</h3>
+            <p class="note">Your recent orders and items you bought.</p>
+            <div id="accountHistory" class="history-list"></div>
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <button class="primary" onclick="switchPanel('shop')">Home</button>
+          <button class="ghost" onclick="switchPanel('orders')">View All Orders</button>
+          <button class="danger" onclick="logout()">Logout</button>
+        </div>
+      </section>
+    </section>
+
+    <div id="appMsg" class="msg"></div>
+  </div>
+
+  <script>
+    // ===== AUTH CHECK =====
+    function buildClientPath(path) {
+      if (window.location.protocol === "file:") {
+        return path.replace(/^\//, "");  // Remove leading / for file://
+      }
+      return path.startsWith("/") ? `${window.location.origin}${path}` : `${window.location.origin}/${path}`;
+    }
+
+    const token = localStorage.getItem("token") || "";
+    if (!token) {
+      window.location.href = buildClientPath("/login.html");
+    }
+
+    // ===== API & UTILITY =====
+    const normalizeApiBase = (base) => String(base || "").trim().replace(/\/$/, "");
+    const uniqueApiBases = (items) => Array.from(new Set(items.filter(Boolean)));
+
+    function getApiCandidates() {
+      const override = normalizeApiBase(localStorage.getItem("apiBaseUrl"));
+      const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+      const isFileProtocol = window.location.protocol === "file:";
+      const fromLocation = normalizeApiBase(window.location.origin);
+      const candidates = [];
+
+      if (override) candidates.push(override);
+
+      if (isFileProtocol) {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+        return uniqueApiBases(candidates);
+      }
+
+      if (isLocalHost && window.location.port && window.location.port !== "5000") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+      }
+
+      candidates.push(fromLocation, "", "http://localhost:5000", "http://127.0.0.1:5000");
+      return uniqueApiBases(candidates);
+    }
+
+    let api = getApiCandidates()[0] || "";
+
+    function rememberWorkingApi(base) {
+      api = normalizeApiBase(base);
+      if (api) {
+        localStorage.setItem("apiBaseUrl", api);
+      } else {
+        localStorage.removeItem("apiBaseUrl");
+      }
+    }
+
+    function parseJsonSafe(text) {
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_e) {
+        return {};
+      }
+    }
+
+    let currentUser = null;
+    let products = [];
+    let cachedOrders = [];
+    let activeCategory = "All";
+
+    // ===== DOM ELEMENTS =====
+    const accName = document.getElementById("accName");
+    const accPhone = document.getElementById("accPhone");
+    const accEmail = document.getElementById("accEmail");
+    const accPincode = document.getElementById("accPincode");
+    const accLine1 = document.getElementById("accLine1");
+    const accLine2 = document.getElementById("accLine2");
+    const accCity = document.getElementById("accCity");
+    const accState = document.getElementById("accState");
+    const orderSupportEmail = document.getElementById("orderSupportEmail");
+    const customTitle = document.getElementById("customTitle");
+    const customDescription = document.getElementById("customDescription");
+    const customImageUrl = document.getElementById("customImageUrl");
+    const customImageFile = document.getElementById("customImageFile");
+
+    // ===== API REQUEST =====
+    async function request(path, options = {}) {
+      const headers = options.headers || {};
+      if (!(options.body instanceof FormData)) {
+        headers["Content-Type"] = headers["Content-Type"] || "application/json";
+      }
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const candidates = uniqueApiBases([api, ...getApiCandidates()]);
+      const tried = [];
+
+      for (let i = 0; i < candidates.length; i += 1) {
+        const base = candidates[i];
+        const url = `${base}${path}`;
+
+        let res;
+        try {
+          res = await fetch(url, { ...options, headers });
+        } catch (_networkError) {
+          tried.push(url);
+          continue;
+        }
+
+        const text = await res.text();
+        const data = parseJsonSafe(text);
+
+        if (res.ok) {
+          rememberWorkingApi(base);
+          return data;
+        }
+
+        if (res.status === 404 && i < candidates.length - 1) {
+          tried.push(url);
+          continue;
+        }
+
+        throw new Error(data.message || `Request failed (${res.status})`);
+      }
+
+      const attempted = tried.length ? ` Tried: ${tried.join(", ")}` : "";
+      throw new Error(`Cannot reach server. Start backend using .\\start-local.ps1 and open http://localhost:5000.${attempted}`);
+    }
+
+    async function recordVisit() {
+      try {
+        await request("/api/visits", {
+          method: "POST",
+          body: JSON.stringify({ route: window.location.pathname })
+        });
+      } catch (_e) {
+      }
+    }
+
+    // ===== UI HELPERS =====
+    function setMsg(id, text, bad = false) {
+      const el = document.getElementById(id);
+      el.style.color = bad ? "var(--danger)" : "var(--good)";
+      el.textContent = text;
+      setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
+    }
+
+    function toTitleCase(value) {
+      return String(value || "")
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(" ");
+    }
+
+    function normalizeCategoryName(rawCategory) {
+      const cleaned = String(rawCategory || "").trim();
+      if (!cleaned) return "Other";
+
+      const key = cleaned.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      if (key === "crochet" || key === "crochets") return "Crochet";
+      if (key === "handmade gift" || key === "handmade gifts") return "Handmade Gifts";
+      if (key === "painting" || key === "paintings") return "Paintings";
+
+      return toTitleCase(cleaned);
+    }
+
+    function productImage(url) {
+      return url || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=60";
+    }
+
+    function productCard(p) {
+      const out = p.stock <= 0;
+      const category = normalizeCategoryName(p.category);
+      return `
+        <article class="product">
+          <img src="${productImage(p.imageUrl)}" alt="${p.name}" />
+          <div class="body">
+            <h3>${p.name}</h3>
+            <p class="note">${category}</p>
+            <p class="note">${p.description || "Handmade premium item"}</p>
+            <p class="price">INR ${p.price}</p>
+            <p class="note">${out ? "Out of stock" : `In stock: ${p.stock}`}</p>
+            <div class="row">
+              <button class="ghost" onclick="toggleWishlist('${p._id}')">❤ Wishlist</button>
+              <button class="secondary" ${out ? "disabled" : ""} onclick="addToCart('${p._id}')">🛒 Cart</button>
+            </div>
+            <button class="primary" ${out ? "disabled" : ""} onclick="buyNow('${p._id}')">Buy Now</button>
+          </div>
+        </article>`;
+    }
+
+    function renderProducts() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtered = products.filter((p) => {
+        const normalizedCategory = normalizeCategoryName(p.category);
+        const inCategory = activeCategory === "All" || normalizedCategory.toLowerCase() === activeCategory.toLowerCase();
+        const hay = `${p.name} ${p.description || ""} ${normalizedCategory}`.toLowerCase();
+        const inSearch = !q || hay.includes(q);
+        return inCategory && inSearch;
+      });
+      document.getElementById("products").innerHTML = filtered.map(productCard).join("") || "<p class='note'>No products match your search.</p>";
+    }
+
+    function switchPanel(panelName) {
+      document.querySelectorAll(".panel").forEach((el) => el.classList.remove("active"));
+      if (panelName === "shop") {
+        document.getElementById("shopSection").classList.add("active");
+        renderCategoryBar();
+        return;
+      }
+      const target = document.getElementById(`panel-${panelName}`);
+      if (target) target.classList.add("active");
+      renderCategoryBar();
+      if (panelName === "cart") loadCart();
+      if (panelName === "wishlist") loadWishlist();
+      if (panelName === "orders") loadOrders();
+      if (panelName === "customize") loadCustomRequests();
+      if (panelName === "account") {
+        fillAccount();
+        loadAccountHistory();
+      }
+    }
+
+    function renderCategoryBar() {
+      const fixed = ["All", "Crochet", "Handmade Gifts", "Paintings"];
+      const dynamic = Array.from(new Set(products.map((p) => normalizeCategoryName(p.category))));
+      const all = Array.from(new Set([...fixed, ...dynamic]));
+      const bar = document.getElementById("categoryBar");
+      const isCustomizeActive = document.getElementById("panel-customize").classList.contains("active");
+      const categoryButtons = all.map((cat) =>
+        `<button class="cat-chip ${activeCategory === cat ? "active" : ""}" onclick="setCategory('${cat.replace(/'/g, "&#39;")}')">${cat}</button>`
+      ).join("");
+      const customizeButton = `<button class="cat-chip ${isCustomizeActive ? "active" : ""}" onclick="switchPanel('customize')">Customize</button>`;
+      bar.innerHTML = `${categoryButtons}${customizeButton}`;
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      switchPanel("shop");
+      renderCategoryBar();
+      renderProducts();
+    }
+
+    // ===== PRODUCTS =====
+    async function loadProducts() {
+      const data = await request("/api/products");
+      products = data.products;
+      renderCategoryBar();
+      renderProducts();
+    }
+
+    async function addToCart(productId, quantity = 1) {
+      try {
+        await request("/api/cart", { method: "POST", body: JSON.stringify({ productId, quantity }) });
+        setMsg("appMsg", "Added to cart");
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function buyNow(productId) {
+      await addToCart(productId, 1);
+      switchPanel("cart");
+    }
+
+    async function toggleWishlist(productId) {
+      try {
+        const data = await request(`/api/wishlist/${productId}`, { method: "POST" });
+        setMsg("appMsg", data.message);
+        await loadWishlist();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    // ===== WISHLIST =====
+    async function loadWishlist() {
+      const data = await request("/api/wishlist");
+      const el = document.getElementById("wishlistList");
+      if (!data.items.length) {
+        el.innerHTML = "<p class='note'>Your wishlist is empty.</p>";
+        return;
+      }
+      el.innerHTML = data.items.map((it) => {
+        const p = it.productId;
+        if (!p) return "";
+        return `<div class='list-item' style='display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:flex-start;'>
+          <img src='${productImage(p.imageUrl)}' alt='${p.name}' style='width:100px;height:100px;object-fit:cover;border-radius:8px;' />
+          <div>
+            <b>${p.name}</b>
+            <span class='note'>INR ${p.price}</span>
+            <span class='note'>${p.description || "Handmade premium item"}</span>
+            <div class='row' style='grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;'>
+              <button class='secondary' onclick="addToCart('${p._id}')">🛒 Add to Cart</button>
+              <button class='primary' onclick="buyNow('${p._id}')">Buy Now</button>
+              <button class='danger' onclick="toggleWishlist('${p._id}')">Remove</button>
+            </div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // ===== CART =====
+    async function loadCart() {
+      const data = await request("/api/cart");
+      const el = document.getElementById("cartList");
+      if (!data.items.length) {
+        el.innerHTML = "<p class='note'>Cart is empty.</p>";
+        return;
+      }
+      let total = 0;
+      el.innerHTML = data.items.map((it) => {
+        const p = it.productId;
+        if (!p) return "";
+        total += p.price * it.quantity;
+        return `<div class='list-item' style='display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:flex-start;'>
+          <img src='${productImage(p.imageUrl)}' alt='${p.name}' style='width:100px;height:100px;object-fit:cover;border-radius:8px;' />
+          <div>
+            <b>${p.name}</b>
+            <span class='note'>INR ${p.price} x ${it.quantity} = INR ${p.price * it.quantity}</span>
+            <span class='note'>${p.description || "Handmade premium item"}</span>
+            <div class='row' style='grid-template-columns:auto 1fr;gap:6px;margin-top:10px;'>
+              <input id='q-${it._id}' type='number' min='1' value='${it.quantity}' style='width:90px;' />
+              <button class='ghost' onclick="updateCartQty('${it._id}')">Update</button>
+              <button class='danger' onclick="removeFromCart('${it._id}')">Remove</button>
+            </div>
+          </div>
+        </div>`;
+      }).join("") + `<p style='margin-top:8px; font-weight:800;'>Total: INR ${total}</p>`;
+    }
+
+    async function updateCartQty(itemId) {
+      try {
+        const quantity = Number(document.getElementById(`q-${itemId}`).value || 1);
+        await request(`/api/cart/${itemId}`, { method: "PUT", body: JSON.stringify({ quantity }) });
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function removeFromCart(itemId) {
+      try {
+        await request(`/api/cart/${itemId}`, { method: "DELETE" });
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    // ===== CHECKOUT =====
+    async function checkout() {
+      try {
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const supportEmail = orderSupportEmail.value.trim();
+        const shippingAddress = {
+          fullName: accName.value,
+          phone: accPhone.value,
+          line1: accLine1.value,
+          line2: accLine2.value,
+          city: accCity.value,
+          state: accState.value,
+          pincode: accPincode.value
+        };
+
+        const checkoutData = await request("/api/orders/checkout", {
+          method: "POST",
+          body: JSON.stringify({ paymentMethod, shippingAddress, supportEmail })
+        });
+
+        if (checkoutData.onlinePayment) {
+          await startOnlinePayment(checkoutData);
+          return;
+        }
+
+        setMsg("appMsg", checkoutData.message || "Order placed successfully");
+        await loadCart();
+        await loadOrders();
+        await loadProducts();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function ensureRazorpayLoaded() {
+      if (window.Razorpay) return;
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-razorpay="true"]');
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", () => reject(new Error("Failed to load payment gateway")), { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+        script.dataset.razorpay = "true";
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Failed to load payment gateway"));
+        document.body.appendChild(script);
+      });
+    }
+
+    async function startOnlinePayment(checkoutData) {
+      const paymentConfig = checkoutData.razorpay;
+      const localOrderId = checkoutData.order && checkoutData.order._id;
+      if (!paymentConfig || !localOrderId) {
+        throw new Error("Payment setup is incomplete");
+      }
+
+      await ensureRazorpayLoaded();
+
+      await new Promise((resolve, reject) => {
+        const options = {
+          key: paymentConfig.keyId,
+          amount: paymentConfig.amount,
+          currency: paymentConfig.currency,
+          name: paymentConfig.name,
+          description: paymentConfig.description,
+          order_id: paymentConfig.orderId,
+          prefill: paymentConfig.prefill || {},
+          theme: { color: "#e56a2d" },
+          modal: {
+            ondismiss: () => reject(new Error("Payment cancelled by user"))
+          },
+          handler: async (response) => {
+            try {
+              const verifyResult = await request(`/api/orders/${localOrderId}/verify-payment`, {
+                method: "POST",
+                body: JSON.stringify(response)
+              });
+              setMsg("appMsg", verifyResult.message || "Payment successful and order placed");
+              await loadCart();
+              await loadOrders();
+              await loadProducts();
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          }
+        };
+
+        const rz = new window.Razorpay(options);
+        rz.on("payment.failed", (event) => {
+          const reason = event && event.error && event.error.description
+            ? event.error.description
+            : "Online payment failed";
+          reject(new Error(reason));
+        });
+        rz.open();
+      });
+    }
+
+    // ===== ORDERS =====
+    async function loadOrders() {
+      const data = await request("/api/orders");
+      cachedOrders = data.orders || [];
+      const el = document.getElementById("ordersList");
+      if (!data.orders.length) {
+        el.innerHTML = "<p class='note'>No orders yet.</p>";
+      } else {
+        el.innerHTML = data.orders.map((o) => {
+          const items = o.items.map((i) => `
+            <div style='display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center;margin-bottom:8px;'>
+              <img src='${productImage(i.imageUrl)}' alt='${i.name}' style='width:80px;height:80px;object-fit:cover;border-radius:8px;' />
+              <div>
+                <b>${i.name}</b>
+                <span class='note'>INR ${i.price} x ${i.quantity}</span>
+              </div>
+            </div>`).join("");
+          return `<div class='list-item'>
+            <b>Order #${o._id.slice(-6)}</b>
+            ${items}
+            <span class='note'>Status: ${o.orderStatus} | Payment: ${o.paymentMethod} (${o.paymentStatus})</span>
+            <span class='note'>Delivery Agent: ${o.deliveryAgentPhone || "Will be assigned"}</span>
+            <span class='note'>Tracking: ${(o.trackingLocation && o.trackingLocation.note) || "Pending update"}</span>
+          </div>`;
+        }).join("");
+      }
+    }
+
+    // ===== CUSTOMIZATION =====
+    async function submitCustomRequest() {
+      try {
+        const title = customTitle.value.trim();
+        const description = customDescription.value.trim();
+        if (!title || !description) {
+          setMsg("appMsg", "Please add a title and description for your customization request.", true);
+          return;
+        }
+
+        const form = new FormData();
+        form.append("title", title);
+        form.append("description", description);
+        if (customImageUrl.value.trim()) form.append("referenceImageUrl", customImageUrl.value.trim());
+        if (customImageFile.files[0]) form.append("referenceImage", customImageFile.files[0]);
+
+        const data = await request("/api/custom-requests", { method: "POST", body: form });
+        setMsg("appMsg", data.message || "Customization request sent successfully");
+        customTitle.value = "";
+        customDescription.value = "";
+        customImageUrl.value = "";
+        customImageFile.value = "";
+        await loadCustomRequests();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function loadCustomRequests() {
+      const el = document.getElementById("customRequestList");
+      const customOrdersEl = document.getElementById("accCustomOrders");
+      if (!el) return;
+      try {
+        const data = await request("/api/custom-requests");
+        const requests = data.requests || [];
+        if (customOrdersEl) {
+          const activeCustomOrders = requests.filter((item) => item.status !== "COMPLETED").length;
+          customOrdersEl.textContent = String(activeCustomOrders);
+        }
+        if (!requests.length) {
+          el.innerHTML = "<p class='note'>No custom requests yet.</p>";
+          return;
+        }
+
+        el.innerHTML = requests.map((item) => `
+          <div class='list-item'>
+            <b>${item.title}</b><br>
+            <span class='note'>Status: ${String(item.status || "NEW").replace(/_/g, " ")}</span><br>
+            <span class='note'>${item.description}</span><br>
+            ${item.referenceImageUrl ? `<a href='${item.referenceImageUrl}' target='_blank' rel='noopener noreferrer'><img class='request-thumb' src='${item.referenceImageUrl}' alt='Reference for ${item.title}' /></a>` : ""}
+            ${item.adminReply ? `<span class='note'>Owner reply: ${item.adminReply}</span><br>` : ""}
+            <span class='note'>Updated: ${new Date(item.updatedAt || item.createdAt).toLocaleString()}</span>
+          </div>`).join("");
+      } catch (e) {
+        el.innerHTML = `<p class='note'>Could not load custom requests: ${e.message}</p>`;
+      }
+    }
+
+    // ===== ACCOUNT =====
+    function fillAccount() {
+      accName.value = currentUser.name || "";
+      accPhone.value = currentUser.phone || "";
+      accEmail.value = currentUser.email || "";
+      orderSupportEmail.value = currentUser.email || "";
+      const a = currentUser.address || {};
+      accLine1.value = a.line1 || "";
+      accLine2.value = a.line2 || "";
+      accCity.value = a.city || "";
+      accState.value = a.state || "";
+      accPincode.value = a.pincode || "";
+    }
+
+    async function saveAccount() {
+      try {
+        const payload = {
+          name: accName.value,
+          phone: accPhone.value,
+          address: {
+            fullName: accName.value,
+            phone: accPhone.value,
+            line1: accLine1.value,
+            line2: accLine2.value,
+            city: accCity.value,
+            state: accState.value,
+            pincode: accPincode.value
+          }
+        };
+        const data = await request("/api/account", { method: "PUT", body: JSON.stringify(payload) });
+        currentUser = data.user;
+        setMsg("appMsg", "Account saved");
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function loadAccountHistory() {
+      const historyEl = document.getElementById("accountHistory");
+      const totalOrdersEl = document.getElementById("accTotalOrders");
+      const totalSpentEl = document.getElementById("accTotalSpent");
+      const recentPurchaseEl = document.getElementById("accRecentPurchase");
+      if (!historyEl || !totalOrdersEl || !totalSpentEl || !recentPurchaseEl) return;
+
+      let orders = cachedOrders;
+      if (!orders.length) {
+        try {
+          const data = await request("/api/orders");
+          orders = data.orders || [];
+          cachedOrders = orders;
+        } catch (e) {
+          historyEl.innerHTML = `<p class='note'>Could not load purchase history: ${e.message}</p>`;
+          return;
+        }
+      }
+
+      const sorted = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const totalSpent = sorted.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
+
+      totalOrdersEl.textContent = String(sorted.length);
+      totalSpentEl.textContent = `INR ${totalSpent.toFixed(0)}`;
+      recentPurchaseEl.textContent = sorted[0]
+        ? new Date(sorted[0].createdAt).toLocaleDateString()
+        : "No orders";
+
+      if (!sorted.length) {
+        historyEl.innerHTML = "<p class='note'>No purchases yet. Start exploring handmade products from Home.</p>";
+        return;
+      }
+
+      historyEl.innerHTML = sorted.map((order) => {
+        const items = (order.items || []).map((item) => `${item.name} x${item.quantity}`).join(", ");
+        return `<div class='list-item'>
+          <b>Order #${order._id.slice(-6)}</b><br>
+          <span class='note'>${items || "No item details"}</span><br>
+          <span class='note'>Placed on ${new Date(order.createdAt).toLocaleString()}</span><br>
+          <span class='note'>Total: INR ${Number(order.totalAmount || 0).toFixed(0)} | Status: ${order.orderStatus}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("apiBaseUrl");
+      window.location.href = buildClientPath("/index.html");
+    }
+
+    // ===== INITIALIZATION =====
+    async function boot() {
+      try {
+        const me = await request("/api/auth/me");
+        currentUser = me.user;
+        
+        if (currentUser.role === "admin") {
+          window.location.href = "/admin.html";
+          return;
+        }
+
+        document.getElementById("welcomeLine").textContent = `Welcome back, ${currentUser.name}`;
+        document.getElementById("roleLine").textContent = "Fresh handmade drops are waiting for you - cozy, colorful, and crafted with love.";
+
+        await recordVisit();
+        await loadProducts();
+        await loadCart();
+        await loadWishlist();
+        await loadOrders();
+        await loadCustomRequests();
+        fillAccount();
+        await loadAccountHistory();
+      } catch (_e) {
+        logout();
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
