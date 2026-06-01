@@ -225,6 +225,43 @@
     }
     .edit-form.open { display: grid; gap: 8px; }
 
+    .media-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .media-preview-item {
+      position: relative;
+      border: 1px solid #e4d4c1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .media-preview-item img,
+    .media-preview-item video {
+      width: 100%;
+      height: 100%;
+      min-height: 96px;
+      object-fit: cover;
+      display: block;
+    }
+    .media-preview-item button {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: none;
+      cursor: pointer;
+    }
+
     @media (max-width: 980px) {
       .bar { grid-template-columns: 1fr; }
       .layout { grid-template-columns: 1fr; }
@@ -258,6 +295,12 @@
     </section>
 
     <section class="panel" style="margin-bottom:4px;">
+      <h2>⭐ Customer Feedback</h2>
+      <p class="note" style="margin-bottom:8px;">View delivered-order feedback collected for products. This helps you monitor customer sentiment and product satisfaction.</p>
+      <div id="adminFeedback" style="margin-top:8px;"></div>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
       <h2>🎨 Customization Requests</h2>
       <p class="note">Review customer ideas, check reference photos, and reply if the item can be made.</p>
       <div id="adminCustomRequests" style="margin-top:8px;"></div>
@@ -266,7 +309,7 @@
     <section class="layout">
       <section class="panel stack">
         <h2>Add Product</h2>
-        <p class="note">Upload image here and it will show on the main website product cards.</p>
+        <p class="note">Upload a main image and add multiple photos/videos so customers can swipe through product angles in the store.</p>
         <div class="row">
           <input id="prName" placeholder="Product name" />
           <input id="prCategory" placeholder="Category" />
@@ -275,9 +318,14 @@
         </div>
         <textarea id="prDesc" placeholder="Description"></textarea>
         <div class="row">
-          <input id="prImageUrl" placeholder="Image URL (optional)" />
+          <input id="prImageUrl" placeholder="Main Image URL (optional)" />
           <input id="prImageFile" type="file" accept="image/*" />
         </div>
+        <textarea id="prMediaUrls" placeholder="Media URLs (images or videos) - one per line"></textarea>
+        <div class="row">
+          <input id="prMediaFiles" type="file" accept="image/*,video/*" multiple onchange="handleMediaFileChange('prMediaFiles','prMediaPreview')" />
+        </div>
+        <div id="prMediaPreview" class="media-preview-grid"></div>
         <button class="primary" onclick="createProduct()">Upload Product</button>
 
         <h3>Product Inventory</h3>
@@ -300,7 +348,10 @@
   </div>
 
   <script>
-    let token = localStorage.getItem("token") || "";
+    const AUTH_TOKEN_KEY = "token";
+    const API_OVERRIDE_KEY = "apiBaseUrl";
+    
+    let token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
     let currentUser = null;
 
     const prName = document.getElementById("prName");
@@ -310,6 +361,62 @@
     const prDesc = document.getElementById("prDesc");
     const prImageUrl = document.getElementById("prImageUrl");
     const prImageFile = document.getElementById("prImageFile");
+    const prMediaUrls = document.getElementById("prMediaUrls");
+    const prMediaFiles = document.getElementById("prMediaFiles");
+
+    function normalizeBase(base) {
+      return String(base || "").trim().replace(/\/$/, "");
+    }
+
+    function unique(list) {
+      return Array.from(new Set(list.filter(Boolean)));
+    }
+
+    function getApiCandidates() {
+      const { protocol, hostname, port } = window.location;
+      const override = normalizeBase(localStorage.getItem(API_OVERRIDE_KEY));
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+      const fromLocation = normalizeBase(`${window.location.origin}`);
+
+      const candidates = [];
+      if (override) candidates.push(override);
+
+      if (protocol === "file:") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+        return unique(candidates);
+      }
+
+      if (isLocalhost && port && port !== "5000") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+      }
+
+      candidates.push(fromLocation, "", "http://localhost:5000", "http://127.0.0.1:5000");
+      return unique(candidates);
+    }
+
+    let activeApiBase = getApiCandidates()[0] || "";
+
+    function rememberWorkingBase(base) {
+      activeApiBase = normalizeBase(base);
+      if (activeApiBase) {
+        localStorage.setItem(API_OVERRIDE_KEY, activeApiBase);
+      } else {
+        localStorage.removeItem(API_OVERRIDE_KEY);
+      }
+    }
+
+    function parseJsonSafe(text) {
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_e) {
+        return {};
+      }
+    }
+
+    function buildCandidateBases() {
+      return unique([activeApiBase, ...getApiCandidates()]);
+    }
 
     function setMsg(text, bad = false) {
       const el = document.getElementById("appMsg");
@@ -318,17 +425,71 @@
       setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
     }
 
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
     async function request(path, options = {}) {
-      const headers = options.headers || {};
+      const headers = { ...(options.headers || {}) };
+
       if (!(options.body instanceof FormData)) {
         headers["Content-Type"] = headers["Content-Type"] || "application/json";
       }
-      if (token) headers.Authorization = `Bearer ${token}`;
 
-      const res = await fetch(path, { ...options, headers });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "Request failed");
-      return data;
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const candidateBases = buildCandidateBases();
+      const networkFailures = [];
+
+      for (let i = 0; i < candidateBases.length; i += 1) {
+        const base = candidateBases[i];
+        const url = `${base}${path}`;
+
+        let response;
+        try {
+          response = await fetch(url, { ...options, headers });
+        } catch (_e) {
+          networkFailures.push(url);
+          continue;
+        }
+
+        const rawText = await response.text();
+        const contentType = response.headers.get("content-type") || "";
+        const looksLikeJson = /^\s*[\{\[]/.test(rawText);
+        const isJson = contentType.toLowerCase().includes("application/json") || looksLikeJson;
+        const payload = isJson ? parseJsonSafe(rawText) : null;
+
+        if (response.ok) {
+          if (!isJson) {
+            if (i < candidateBases.length - 1) {
+              networkFailures.push(url);
+              continue;
+            }
+            throw new Error(`Unexpected non-JSON response from ${url}`);
+          }
+          if (payload === null) {
+            if (i < candidateBases.length - 1) {
+              networkFailures.push(url);
+              continue;
+            }
+            throw new Error(`Invalid JSON response from ${url}`);
+          }
+          rememberWorkingBase(base);
+          return payload;
+        }
+
+        if (response.status === 404 && i < candidateBases.length - 1) {
+          networkFailures.push(url);
+          continue;
+        }
+
+        throw new Error((payload && payload.message) || `Request failed (${response.status})`);
+      }
+
+      const attempted = networkFailures.length ? ` Tried: ${networkFailures.join(", ")}` : "";
+      throw new Error(`Cannot reach server. Run .\\start-local.ps1 and open http://localhost:5000.${attempted}`);
     }
 
     function openStore() {
@@ -336,8 +497,9 @@
     }
 
     function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "/";
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(API_OVERRIDE_KEY);
+      window.location.href = "/login.html";
     }
 
     function productImage(url) {
@@ -383,6 +545,59 @@
       return map[action] || action;
     }
 
+    async function handleMediaFileChange(inputId, previewId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      if (!input || !preview) return;
+      renderMediaPreviews(input, preview);
+    }
+
+    function renderMediaPreviews(input, previewEl) {
+      previewEl.innerHTML = "";
+      const files = input.files ? Array.from(input.files) : [];
+      if (!files.length) return;
+      files.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "media-preview-item";
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "×";
+        removeButton.onclick = () => removeSelectedMedia(input.id, index);
+        item.appendChild(removeButton);
+
+        if (file.type.startsWith("video/")) {
+          const video = document.createElement("video");
+          video.src = URL.createObjectURL(file);
+          video.controls = true;
+          video.muted = true;
+          video.playsInline = true;
+          item.appendChild(video);
+        } else {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.alt = file.name;
+          item.appendChild(img);
+        }
+
+        previewEl.appendChild(item);
+      });
+    }
+
+    function removeSelectedMedia(inputId, index) {
+      const input = document.getElementById(inputId);
+      if (!input || !input.files) return;
+      const dt = new DataTransfer();
+      Array.from(input.files).forEach((file, fileIndex) => {
+        if (fileIndex !== index) dt.items.add(file);
+      });
+      input.files = dt.files;
+      const previewId = inputId === "prMediaFiles"
+        ? "prMediaPreview"
+        : `ep-media-preview-${inputId.replace("ep-media-files-", "")}`;
+      const previewEl = document.getElementById(previewId);
+      if (previewEl) renderMediaPreviews(input, previewEl);
+    }
+
     async function createProduct() {
       try {
         const form = new FormData();
@@ -393,6 +608,10 @@
         form.append("stock", prStock.value || "0");
         if (prImageUrl.value) form.append("imageUrl", prImageUrl.value);
         if (prImageFile.files[0]) form.append("image", prImageFile.files[0]);
+        if (prMediaUrls.value.trim()) form.append("mediaUrls", prMediaUrls.value.trim());
+        if (prMediaFiles.files.length) {
+          Array.from(prMediaFiles.files).forEach((file) => form.append("media", file));
+        }
 
         await request("/api/products", { method: "POST", body: form });
         setMsg("Product uploaded successfully.");
@@ -404,6 +623,10 @@
         prStock.value = "";
         prImageUrl.value = "";
         prImageFile.value = "";
+        prMediaUrls.value = "";
+        prMediaFiles.value = "";
+        const prMediaPreview = document.getElementById("prMediaPreview");
+        if (prMediaPreview) prMediaPreview.innerHTML = "";
 
         await refreshAll();
       } catch (e) {
@@ -426,6 +649,19 @@
       try {
         await request(`/api/products/${productId}`, { method: "DELETE" });
         setMsg("Product marked inactive.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function toggleProductActive(productId, isActive) {
+      try {
+        await request(`/api/products/${productId}`, {
+          method: "PUT",
+          body: JSON.stringify({ isActive: !isActive })
+        });
+        setMsg(isActive ? "Product deactivated." : "Product activated.");
         await refreshAll();
       } catch (e) {
         setMsg(e.message, true);
@@ -477,17 +713,29 @@
 
     async function saveProductEdit(productId) {
       try {
-        const name     = document.getElementById(`ep-name-${productId}`).value.trim();
-        const category = document.getElementById(`ep-cat-${productId}`).value.trim();
-        const desc     = document.getElementById(`ep-desc-${productId}`).value.trim();
-        const price    = document.getElementById(`ep-price-${productId}`).value;
-        const stock    = document.getElementById(`ep-stock-${productId}`).value;
-        const imageUrl = document.getElementById(`ep-img-${productId}`).value.trim();
+        const name       = document.getElementById(`ep-name-${productId}`).value.trim();
+        const category   = document.getElementById(`ep-cat-${productId}`).value.trim();
+        const desc       = document.getElementById(`ep-desc-${productId}`).value.trim();
+        const price      = document.getElementById(`ep-price-${productId}`).value;
+        const stock      = document.getElementById(`ep-stock-${productId}`).value;
+        const imageUrl   = document.getElementById(`ep-img-${productId}`).value.trim();
+        const mediaUrls  = document.getElementById(`ep-media-${productId}`).value.trim();
+        const mediaFiles = document.getElementById(`ep-media-files-${productId}`);
         if (!name) { setMsg("Product name is required", true); return; }
-        await request(`/api/products/${productId}`, {
-          method: "PUT",
-          body: JSON.stringify({ name, category, description: desc, price: Number(price), stock: Number(stock), imageUrl })
-        });
+
+        const form = new FormData();
+        form.append("name", name);
+        form.append("category", category || "Crochet");
+        form.append("description", desc || "");
+        form.append("price", Number(price) || 0);
+        form.append("stock", Number(stock) || 0);
+        if (imageUrl) form.append("imageUrl", imageUrl);
+        if (mediaUrls) form.append("mediaUrls", mediaUrls);
+        if (mediaFiles && mediaFiles.files.length) {
+          Array.from(mediaFiles.files).forEach((file) => form.append("media", file));
+        }
+
+        await request(`/api/products/${productId}`, { method: "PUT", body: form });
         setMsg("Product updated.");
         await refreshAll();
       } catch (e) {
@@ -512,16 +760,18 @@
                 : "<span style='color:var(--danger);font-weight:700;'>● Inactive</span>");
           const safeDesc = (product.description || "").replace(/'/g, "&#39;");
           const safeImgUrl = (product.imageUrl || "").replace(/'/g, "&#39;");
+          const mediaUrls = (product.media || []).map((item) => String(item.url || "")).join("\n").replace(/'/g, "&#39;");
+          const mediaCount = (product.media || []).length;
           return `
             <div class="list-item product-row">
-              <img class="product-thumb" src="${productImage(product.imageUrl)}" alt="${product.name}" />
+              <img class="product-thumb" src="${productImage(product.imageUrl || (product.media && product.media[0] && product.media[0].url))}" alt="${product.name}" />
               <div>
                 <b>${product.name}</b>
                 <span style="float:right;">${status}</span><br>
-                <span class="note">Category: ${product.category || "Other"} &nbsp;|&nbsp; Price: <b>INR ${product.price}</b> &nbsp;|&nbsp; Stock: <b>${product.stock}</b></span>
+                <span class="note">Category: ${product.category || "Other"} &nbsp;|&nbsp; Price: <b>INR ${product.price}</b> &nbsp;|&nbsp; Stock: <b>${product.stock}</b> &nbsp;|&nbsp; Media: <b>${mediaCount}</b></span>
                 <div class="row" style="margin-top:8px;">
                   <button class="ghost" onclick="toggleEditForm('${product._id}')">✏️ Edit Product</button>
-                  <button class="danger" onclick="deactivateProduct('${product._id}')">Deactivate</button>
+                  <button class="${product.isActive ? 'danger' : 'secondary'}" onclick="toggleProductActive('${product._id}', ${product.isActive})">${product.isActive ? 'Deactivate' : 'Activate'}</button>
                 </div>
                 <div id="edit-form-${product._id}" class="edit-form">
                   <input id="ep-name-${product._id}"  placeholder="Product name"  value='${product.name.replace(/'/g,"&#39;")}' />
@@ -532,6 +782,9 @@
                     <input id="ep-stock-${product._id}" type="number" placeholder="Stock"  value="${product.stock}" />
                   </div>
                   <input id="ep-img-${product._id}" placeholder="Image URL (leave blank to keep current)" value='${safeImgUrl}' />
+                  <textarea id="ep-media-${product._id}" placeholder="Media URLs (comma or newline separated)">${mediaUrls}</textarea>
+                  <input id="ep-media-files-${product._id}" type="file" accept="image/*,video/*" multiple onchange="handleMediaFileChange('ep-media-files-${product._id}','ep-media-preview-${product._id}')" />
+                  <div id="ep-media-preview-${product._id}" class="media-preview-grid"></div>
                   <button class="secondary" onclick="saveProductEdit('${product._id}')">💾 Save Changes</button>
                 </div>
               </div>
@@ -603,7 +856,31 @@
         </div>`;
       }).join("");
     }
-
+    async function loadFeedback() {
+      const data = await request("/api/admin/feedback");
+      const list = data.feedback || [];
+      const el = document.getElementById("adminFeedback");
+      if (!list.length) {
+        el.innerHTML = "<p class='note'>No feedback has been submitted yet.</p>";
+        return;
+      }
+      el.innerHTML = list.map((item) => {
+        const productName = item.productId && item.productId.name ? escapeHtml(item.productId.name) : "Unknown product";
+        const userName = item.userId && item.userId.name ? escapeHtml(item.userId.name) : "Customer";
+        const created = new Date(item.createdAt).toLocaleString();
+        const media = (item.media || []).map((m) => {
+          if (m.type === "video") {
+            return `<div style='width:120px;'><video src='${escapeHtml(m.url)}' controls muted playsinline style='width:100%;border-radius:8px;'></video></div>`;
+          }
+          return `<div style='width:120px;'><img src='${escapeHtml(m.url)}' alt='Feedback media' style='width:100%;border-radius:8px;' /></div>`;
+        }).join("");
+        return `<div class='list-item' style='gap:8px;'>
+          <div><b>${productName}</b> by ${userName} <span class='note'>${created}</span></div>
+          <div style='margin-top:6px;'>${escapeHtml(item.message) || "No message."}</div>
+          ${media ? `<div style='display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;'>${media}</div>` : ""}
+        </div>`;
+      }).join("");
+    }
     async function loadActivities() {
       const data = await request("/api/admin/activities?limit=160");
       const list = data.activities || [];
@@ -678,27 +955,43 @@
     }
 
     async function refreshAll() {
-      await Promise.all([loadAnalytics(), loadProducts(), loadOrders(), loadActivities(), loadCustomRequests()]);
+      await Promise.all([loadAnalytics(), loadProducts(), loadOrders(), loadFeedback(), loadActivities(), loadCustomRequests()]);
     }
 
     async function boot() {
       if (!token) {
-        window.location.href = "/";
+        console.warn("No token found, redirecting to login");
+        window.location.href = "/login.html";
         return;
       }
 
       try {
+        console.log("Fetching admin user info...");
         const me = await request("/api/auth/me");
         currentUser = me.user;
+        console.log("Current user role:", currentUser.role);
+        
         if (currentUser.role !== "admin") {
-          window.location.href = "/";
+          console.warn("User is not an admin, redirecting to login");
+          window.location.href = "/login.html";
           return;
         }
 
         document.getElementById("adminIdentity").textContent = `Logged in as ${currentUser.name} (${currentUser.email || "admin"})`;
         await refreshAll();
-      } catch (_e) {
-        logout();
+      } catch (error) {
+        console.error("Boot failed:", error.message);
+        // Show error message to user instead of silently logging out
+        const appMsg = document.getElementById("appMsg");
+        if (appMsg) {
+          appMsg.textContent = `Authentication error: ${error.message}. Redirecting to login...`;
+          appMsg.style.color = "var(--danger)";
+        }
+        // Wait a bit for user to see the error before redirecting
+        setTimeout(() => {
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          window.location.href = "/login.html";
+        }, 2500);
       }
     }
 

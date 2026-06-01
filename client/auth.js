@@ -43,11 +43,11 @@ function rememberWorkingBase(base) {
 }
 
 function parseJsonSafe(text) {
-  if (!text) return {};
+  if (!text) return null;
   try {
     return JSON.parse(text);
   } catch (_e) {
-    return {};
+    return null;
   }
 }
 
@@ -80,6 +80,10 @@ function inferNameFromEmail(email) {
     .join(" ") || "User";
 }
 
+function getAuthToken() {
+  return localStorage.getItem(AUTH_TOKEN_KEY) || "";
+}
+
 function buildClientPath(path) {
   if (window.location.protocol === "file:") {
     return path.replace(/^\//, "");  // Remove leading / for file://
@@ -110,9 +114,26 @@ async function apiRequest(path, options = {}) {
     }
 
     const rawText = await response.text();
-    const payload = parseJsonSafe(rawText);
+    const contentType = response.headers.get("content-type") || "";
+    const looksLikeJson = /^\s*[\{\[]/.test(rawText);
+    const isJson = contentType.toLowerCase().includes("application/json") || looksLikeJson;
+    const payload = isJson ? parseJsonSafe(rawText) : null;
 
     if (response.ok) {
+      if (!isJson) {
+        if (i < candidateBases.length - 1) {
+          networkFailures.push(url);
+          continue;
+        }
+        throw new Error(`Unexpected non-JSON response from ${url}`);
+      }
+      if (payload === null) {
+        if (i < candidateBases.length - 1) {
+          networkFailures.push(url);
+          continue;
+        }
+        throw new Error(`Invalid JSON response from ${url}`);
+      }
       rememberWorkingBase(base);
       return payload;
     }
@@ -122,7 +143,7 @@ async function apiRequest(path, options = {}) {
       continue;
     }
 
-    throw new Error(payload.message || `Request failed (${response.status})`);
+    throw new Error((payload && payload.message) || `Request failed (${response.status})`);
   }
 
   const attempted = networkFailures.length ? ` Tried: ${networkFailures.join(", ")}` : "";
@@ -209,13 +230,17 @@ async function handleLogin() {
       body: JSON.stringify({ identifier, password })
     });
 
-    if (data.token) {
+      if (data.token) {
       localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+    }
+
+    if (!getAuthToken()) {
+      throw new Error("Login succeeded but token was not saved. Please try again.");
     }
 
     showMessage("success", data.message || "Login successful. Redirecting to app...");
     setTimeout(() => {
-      window.location.href = buildClientPath("/app.html");
+      window.location.replace(buildClientPath("/app.html"));
     }, 700);
   } catch (error) {
     showMessage("error", error.message || "Login failed");
@@ -286,9 +311,13 @@ async function handleLoginWithOtp() {
       localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     }
 
+    if (!getAuthToken()) {
+      throw new Error("OTP login succeeded but token was not saved. Please try again.");
+    }
+
     showMessage("success", data.message || "OTP login successful. Redirecting to app...");
     setTimeout(() => {
-      window.location.href = buildClientPath("/app.html");
+      window.location.replace(buildClientPath("/app.html"));
     }, 700);
   } catch (error) {
     showMessage("error", error.message || "OTP login failed");
@@ -388,6 +417,11 @@ function wireSignupPage() {
 function wireLoginPage() {
   const loginBtn = document.getElementById("loginBtn");
   if (!loginBtn) {
+    return;
+  }
+
+  if (getAuthToken()) {
+    window.location.replace(buildClientPath("/app.html"));
     return;
   }
 
