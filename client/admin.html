@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtfullHours | Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1f1b17;
+      --muted: #6b6358;
+      --brand: #e56a2d;
+      --accent: #1b7f70;
+      --line: #e8dac7;
+      --danger: #bb2323;
+      --good: #12773d;
+      --card: rgba(255, 252, 246, 0.84);
+      --shadow: 0 10px 24px rgba(41, 32, 26, 0.12);
+      --bg-image: url("./assets/Artfullhourslogo.png");
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(16, 12, 8, 0.38), rgba(16, 12, 8, 0.2)),
+        radial-gradient(circle at 12% 8%, rgba(229,106,45,0.18), transparent 40%),
+        radial-gradient(circle at 88% 88%, rgba(27,127,112,0.2), transparent 42%),
+        linear-gradient(130deg, #f9f2e7 0%, #f3ecdf 60%, #efe5d5 100%);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: var(--bg-image) center center / cover no-repeat;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1, h2, h3 {
+      font-family: "DM Serif Display", serif;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 16px 0 80px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 251, 244, 0.8);
+      padding: 12px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 8px;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+
+    .bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+
+    .stat {
+      border: 1px solid #e7d5c2;
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    .stat b { font-size: 24px; display: block; margin-top: 4px; }
+
+    .layout {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1.2fr 1fr;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .stack { display: grid; gap: 10px; }
+    .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #d8c8b6;
+      border-radius: 10px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      background: rgba(255,255,255,0.86);
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary { background: var(--brand); color: #fff; }
+    .secondary { background: var(--accent); color: #fff; }
+    .ghost { background: #f0e3d2; color: #5a3c2e; }
+    .danger { background: var(--danger); color: #fff; }
+
+    .note { color: var(--muted); font-size: 13px; }
+    .msg { min-height: 20px; margin-top: 4px; font-weight: 700; color: var(--good); }
+
+    .list-item {
+      border: 1px solid #e4d4c1;
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,0.82);
+      margin-bottom: 8px;
+    }
+
+    .product-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 72px 1fr;
+      align-items: start;
+    }
+
+    .product-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid #dfceb9;
+      background: #f6eee3;
+    }
+
+    .request-thumb {
+      width: 92px;
+      height: 92px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid #dfceb9;
+      background: #f6eee3;
+      margin-top: 8px;
+      display: block;
+    }
+
+    /* ── order card ── */
+    .order-card {
+      border: 1px solid #e4d4c1;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.88);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .order-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(229,106,45,0.08);
+      border-bottom: 1px solid #e8d8c6;
+    }
+    .order-body { padding: 10px 12px; display: grid; gap: 6px; }
+    .order-foot { padding: 8px 12px; border-top: 1px solid #e8d8c6; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .chip-placed    { background:#fff3cd; color:#856404; }
+    .chip-confirmed { background:#cff4d2; color:#155724; }
+    .chip-packed    { background:#d0e8ff; color:#084298; }
+    .chip-shipped   { background:#d0e8ff; color:#084298; }
+    .chip-out_for_delivery { background:#fde8b8; color:#7a4a00; }
+    .chip-delivered { background:#cff4d2; color:#155724; }
+    .chip-cancelled { background:#fde2e2; color:#7a0000; }
+    .chip-cod  { background:#f0e3d2; color:#5a3c2e; }
+    .chip-upi  { background:#ddf4e8; color:#155724; }
+    .chip-card { background:#d8eaff; color:#084298; }
+    .chip-paid    { background:#cff4d2; color:#155724; }
+    .chip-pending { background:#fff3cd; color:#856404; }
+    .order-items-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
+    .order-items-table th { text-align:left; color:var(--muted); font-weight:600; padding:3px 6px; border-bottom:1px solid #e8d8c6; }
+    .order-items-table td { padding:4px 6px; vertical-align:middle; }
+    .order-items-table tr:not(:last-child) td { border-bottom:1px solid #f0e8de; }
+    /* ── product edit form ── */
+    .edit-form {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #e8d8c6;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.9);
+    }
+    .edit-form.open { display: grid; gap: 8px; }
+
+    .media-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .media-preview-item {
+      position: relative;
+      border: 1px solid #e4d4c1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .media-preview-item img,
+    .media-preview-item video {
+      width: 100%;
+      height: 100%;
+      min-height: 96px;
+      object-fit: cover;
+      display: block;
+    }
+    .media-preview-item button {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: none;
+      cursor: pointer;
+    }
+
+    @media (max-width: 980px) {
+      .bar { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="bar">
+      <div>
+        <h1>Admin Panel</h1>
+        <p class="note" id="adminIdentity">Checking access...</p>
+      </div>
+      <div class="bar-actions">
+        <button class="ghost" onclick="openStore()">Open Store</button>
+        <button class="danger" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <article class="stat"><span class="note">Customers</span><b id="stUsers">0</b></article>
+      <article class="stat"><span class="note">Orders</span><b id="stOrders">0</b></article>
+      <article class="stat"><span class="note">Visits</span><b id="stVisits">0</b></article>
+      <article class="stat"><span class="note">Activity Logs</span><b id="stActivities">0</b></article>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
+      <h2>📦 Orders Management</h2>
+      <p class="note" style="margin-bottom:8px;">Every order is shown below — who ordered, what they bought, how they paid, and current status. Use the quick buttons to accept, reject, or update.</p>
+      <div id="adminOrders"></div>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
+      <h2>⭐ Customer Feedback</h2>
+      <p class="note" style="margin-bottom:8px;">View delivered-order feedback collected for products. This helps you monitor customer sentiment and product satisfaction.</p>
+      <div id="adminFeedback" style="margin-top:8px;"></div>
+    </section>
+
+    <section class="panel" style="margin-bottom:4px;">
+      <h2>🎨 Customization Requests</h2>
+      <p class="note">Review customer ideas, check reference photos, and reply if the item can be made.</p>
+      <div id="adminCustomRequests" style="margin-top:8px;"></div>
+    </section>
+
+    <section class="layout">
+      <section class="panel stack">
+        <h2>Add Product</h2>
+        <p class="note">Upload a main image and add multiple photos/videos so customers can swipe through product angles in the store.</p>
+        <div class="row">
+          <input id="prName" placeholder="Product name" />
+          <input id="prCategory" placeholder="Category" />
+          <input id="prPrice" type="number" placeholder="Price" />
+          <input id="prStock" type="number" placeholder="Stock" />
+        </div>
+        <textarea id="prDesc" placeholder="Description"></textarea>
+        <div class="row">
+          <input id="prImageUrl" placeholder="Main Image URL (optional)" />
+          <input id="prImageFile" type="file" accept="image/*" />
+        </div>
+        <textarea id="prMediaUrls" placeholder="Media URLs (images or videos) - one per line"></textarea>
+        <div class="row">
+          <input id="prMediaFiles" type="file" accept="image/*,video/*" multiple onchange="handleMediaFileChange('prMediaFiles','prMediaPreview')" />
+        </div>
+        <div id="prMediaPreview" class="media-preview-grid"></div>
+        <button class="primary" onclick="createProduct()">Upload Product</button>
+
+        <h3>Product Inventory</h3>
+        <p class="note">Shows image, price, stock, and status (In Stock / Out of Stock / Inactive).</p>
+        <div id="adminInventory"></div>
+      </section>
+
+      <section class="panel stack">
+        <h2>User Accounts</h2>
+        <p class="note">See who created accounts and latest login time.</p>
+        <div id="adminCustomers"></div>
+
+        <h3>Recent User Activity</h3>
+        <p class="note">Includes signup, login, cart, wishlist, orders, and other actions with timestamps.</p>
+        <div id="adminActivities"></div>
+      </section>
+    </section>
+
+    <div id="appMsg" class="msg"></div>
+  </div>
+
+  <script>
+    const AUTH_TOKEN_KEY = "token";
+    const API_OVERRIDE_KEY = "apiBaseUrl";
+    
+    let token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+    let currentUser = null;
+
+    const prName = document.getElementById("prName");
+    const prCategory = document.getElementById("prCategory");
+    const prPrice = document.getElementById("prPrice");
+    const prStock = document.getElementById("prStock");
+    const prDesc = document.getElementById("prDesc");
+    const prImageUrl = document.getElementById("prImageUrl");
+    const prImageFile = document.getElementById("prImageFile");
+    const prMediaUrls = document.getElementById("prMediaUrls");
+    const prMediaFiles = document.getElementById("prMediaFiles");
+
+    function normalizeBase(base) {
+      return String(base || "").trim().replace(/\/$/, "");
+    }
+
+    function unique(list) {
+      return Array.from(new Set(list.filter(Boolean)));
+    }
+
+    function getApiCandidates() {
+      const { protocol, hostname, port } = window.location;
+      const override = normalizeBase(localStorage.getItem(API_OVERRIDE_KEY));
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+      const fromLocation = normalizeBase(`${window.location.origin}`);
+
+      const candidates = [];
+      if (override) candidates.push(override);
+
+      if (protocol === "file:") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+        return unique(candidates);
+      }
+
+      if (isLocalhost && port && port !== "5000") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+      }
+
+      candidates.push(fromLocation, "", "http://localhost:5000", "http://127.0.0.1:5000");
+      return unique(candidates);
+    }
+
+    let activeApiBase = getApiCandidates()[0] || "";
+
+    function rememberWorkingBase(base) {
+      activeApiBase = normalizeBase(base);
+      if (activeApiBase) {
+        localStorage.setItem(API_OVERRIDE_KEY, activeApiBase);
+      } else {
+        localStorage.removeItem(API_OVERRIDE_KEY);
+      }
+    }
+
+    function parseJsonSafe(text) {
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_e) {
+        return {};
+      }
+    }
+
+    function buildCandidateBases() {
+      return unique([activeApiBase, ...getApiCandidates()]);
+    }
+
+    function setMsg(text, bad = false) {
+      const el = document.getElementById("appMsg");
+      el.style.color = bad ? "var(--danger)" : "var(--good)";
+      el.textContent = text;
+      setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    async function request(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+
+      if (!(options.body instanceof FormData)) {
+        headers["Content-Type"] = headers["Content-Type"] || "application/json";
+      }
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const candidateBases = buildCandidateBases();
+      const networkFailures = [];
+
+      for (let i = 0; i < candidateBases.length; i += 1) {
+        const base = candidateBases[i];
+        const url = `${base}${path}`;
+
+        let response;
+        try {
+          response = await fetch(url, { ...options, headers });
+        } catch (_e) {
+          networkFailures.push(url);
+          continue;
+        }
+
+        const rawText = await response.text();
+        const contentType = response.headers.get("content-type") || "";
+        const looksLikeJson = /^\s*[\{\[]/.test(rawText);
+        const isJson = contentType.toLowerCase().includes("application/json") || looksLikeJson;
+        const payload = isJson ? parseJsonSafe(rawText) : null;
+
+        if (response.ok) {
+          if (!isJson) {
+            if (i < candidateBases.length - 1) {
+              networkFailures.push(url);
+              continue;
+            }
+            throw new Error(`Unexpected non-JSON response from ${url}`);
+          }
+          if (payload === null) {
+            if (i < candidateBases.length - 1) {
+              networkFailures.push(url);
+              continue;
+            }
+            throw new Error(`Invalid JSON response from ${url}`);
+          }
+          rememberWorkingBase(base);
+          return payload;
+        }
+
+        if (response.status === 404 && i < candidateBases.length - 1) {
+          networkFailures.push(url);
+          continue;
+        }
+
+        throw new Error((payload && payload.message) || `Request failed (${response.status})`);
+      }
+
+      const attempted = networkFailures.length ? ` Tried: ${networkFailures.join(", ")}` : "";
+      throw new Error(`Cannot reach server. Run .\\start-local.ps1 and open http://localhost:5000.${attempted}`);
+    }
+
+    function openStore() {
+      window.location.href = "/";
+    }
+
+    function logout() {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(API_OVERRIDE_KEY);
+      window.location.href = "/login.html";
+    }
+
+    function productImage(url) {
+      return url || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=400&q=60";
+    }
+
+    function toTime(value) {
+      if (!value) return "-";
+      return new Date(value).toLocaleString();
+    }
+
+    function whatsappLink(phone, message) {
+      const digits = String(phone || "").replace(/\D/g, "");
+      if (!digits) return "";
+      const normalized = digits.length === 10 ? `91${digits}` : digits;
+      return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+    }
+
+    function prettyAction(action) {
+      const map = {
+        ACCOUNT_CREATED: "Account Created",
+        LOGIN_PASSWORD: "Login (Password)",
+        LOGIN_OTP: "Login (OTP)",
+        OTP_REQUESTED: "OTP Requested",
+        RESET_OTP_REQUESTED: "Reset OTP Requested",
+        PASSWORD_RESET: "Password Reset",
+        ACCOUNT_UPDATED: "Account Updated",
+        WISHLIST_ADDED: "Wishlist Added",
+        WISHLIST_REMOVED: "Wishlist Removed",
+        CART_ADDED: "Cart Added",
+        CART_UPDATED: "Cart Updated",
+        CART_QUANTITY_CHANGED: "Cart Quantity Changed",
+        CART_REMOVED: "Cart Removed",
+        ORDER_PLACED: "Order Placed",
+        ORDER_STATUS_UPDATED: "Order Status Updated",
+        CUSTOM_REQUEST_CREATED: "Customization Request Created",
+        CUSTOM_REQUEST_UPDATED: "Customization Request Updated",
+        PRODUCT_CREATED: "Product Created",
+        PRODUCT_UPDATED: "Product Updated",
+        PRODUCT_DEACTIVATED: "Product Deactivated",
+        VISIT_RECORDED: "Page Visited"
+      };
+      return map[action] || action;
+    }
+
+    async function handleMediaFileChange(inputId, previewId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      if (!input || !preview) return;
+      renderMediaPreviews(input, preview);
+    }
+
+    function renderMediaPreviews(input, previewEl) {
+      previewEl.innerHTML = "";
+      const files = input.files ? Array.from(input.files) : [];
+      if (!files.length) return;
+      files.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "media-preview-item";
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "×";
+        removeButton.onclick = () => removeSelectedMedia(input.id, index);
+        item.appendChild(removeButton);
+
+        if (file.type.startsWith("video/")) {
+          const video = document.createElement("video");
+          video.src = URL.createObjectURL(file);
+          video.controls = true;
+          video.muted = true;
+          video.playsInline = true;
+          item.appendChild(video);
+        } else {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.alt = file.name;
+          item.appendChild(img);
+        }
+
+        previewEl.appendChild(item);
+      });
+    }
+
+    function removeSelectedMedia(inputId, index) {
+      const input = document.getElementById(inputId);
+      if (!input || !input.files) return;
+      const dt = new DataTransfer();
+      Array.from(input.files).forEach((file, fileIndex) => {
+        if (fileIndex !== index) dt.items.add(file);
+      });
+      input.files = dt.files;
+      const previewId = inputId === "prMediaFiles"
+        ? "prMediaPreview"
+        : `ep-media-preview-${inputId.replace("ep-media-files-", "")}`;
+      const previewEl = document.getElementById(previewId);
+      if (previewEl) renderMediaPreviews(input, previewEl);
+    }
+
+    async function createProduct() {
+      try {
+        const form = new FormData();
+        form.append("name", prName.value);
+        form.append("category", prCategory.value || "Crochet");
+        form.append("description", prDesc.value || "");
+        form.append("price", prPrice.value || "0");
+        form.append("stock", prStock.value || "0");
+        if (prImageUrl.value) form.append("imageUrl", prImageUrl.value);
+        if (prImageFile.files[0]) form.append("image", prImageFile.files[0]);
+        if (prMediaUrls.value.trim()) form.append("mediaUrls", prMediaUrls.value.trim());
+        if (prMediaFiles.files.length) {
+          Array.from(prMediaFiles.files).forEach((file) => form.append("media", file));
+        }
+
+        await request("/api/products", { method: "POST", body: form });
+        setMsg("Product uploaded successfully.");
+
+        prName.value = "";
+        prCategory.value = "";
+        prDesc.value = "";
+        prPrice.value = "";
+        prStock.value = "";
+        prImageUrl.value = "";
+        prImageFile.value = "";
+        prMediaUrls.value = "";
+        prMediaFiles.value = "";
+        const prMediaPreview = document.getElementById("prMediaPreview");
+        if (prMediaPreview) prMediaPreview.innerHTML = "";
+
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function updateStock(productId) {
+      try {
+        const stock = Number(document.getElementById(`st-${productId}`).value || 0);
+        await request(`/api/products/${productId}`, { method: "PUT", body: JSON.stringify({ stock }) });
+        setMsg("Stock updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function deactivateProduct(productId) {
+      try {
+        await request(`/api/products/${productId}`, { method: "DELETE" });
+        setMsg("Product marked inactive.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function toggleProductActive(productId, isActive) {
+      try {
+        await request(`/api/products/${productId}`, {
+          method: "PUT",
+          body: JSON.stringify({ isActive: !isActive })
+        });
+        setMsg(isActive ? "Product deactivated." : "Product activated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function updateOrderStatus(orderId) {
+      try {
+        const orderStatus = document.getElementById(`stt-${orderId}`).value;
+        const deliveryAgentPhone = document.getElementById(`ag-${orderId}`).value;
+        const note = document.getElementById(`tn-${orderId}`).value;
+        const ownerReply = document.getElementById(`or-${orderId}`).value;
+        await request(`/api/orders/${orderId}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ orderStatus, deliveryAgentPhone, trackingLocation: { note }, ownerReply })
+        });
+        setMsg("Order status updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function quickOrderAction(orderId, nextStatus) {
+      const statusEl = document.getElementById(`stt-${orderId}`);
+      if (statusEl) statusEl.value = nextStatus;
+      await updateOrderStatus(orderId);
+    }
+
+    async function loadAnalytics() {
+      const data = await request("/api/admin/analytics");
+
+      document.getElementById("stUsers").textContent = data.totalUsers;
+      document.getElementById("stOrders").textContent = data.totalOrders;
+      document.getElementById("stVisits").textContent = data.totalVisits;
+      document.getElementById("stActivities").textContent = (data.recentActivities || []).length;
+
+      document.getElementById("adminCustomers").innerHTML = data.customers.length
+        ? data.customers.map((customer) => `
+          <div class="list-item">
+            <b>${customer.name}</b><br>
+            <span class="note">Email: ${customer.email || "Not provided"}</span><br>
+            <span class="note">Phone: ${customer.phone || "Not provided"}</span><br>
+            <span class="note">Account Created: ${toTime(customer.createdAt)}</span><br>
+            <span class="note">Last Login: ${customer.lastLoginAt ? toTime(customer.lastLoginAt) : "Never logged in"}</span>
+          </div>`).join("")
+        : "<p class='note'>No customers yet.</p>";
+    }
+
+    async function saveProductEdit(productId) {
+      try {
+        const name       = document.getElementById(`ep-name-${productId}`).value.trim();
+        const category   = document.getElementById(`ep-cat-${productId}`).value.trim();
+        const desc       = document.getElementById(`ep-desc-${productId}`).value.trim();
+        const price      = document.getElementById(`ep-price-${productId}`).value;
+        const stock      = document.getElementById(`ep-stock-${productId}`).value;
+        const imageUrl   = document.getElementById(`ep-img-${productId}`).value.trim();
+        const mediaUrls  = document.getElementById(`ep-media-${productId}`).value.trim();
+        const mediaFiles = document.getElementById(`ep-media-files-${productId}`);
+        if (!name) { setMsg("Product name is required", true); return; }
+
+        const form = new FormData();
+        form.append("name", name);
+        form.append("category", category || "Crochet");
+        form.append("description", desc || "");
+        form.append("price", Number(price) || 0);
+        form.append("stock", Number(stock) || 0);
+        if (imageUrl) form.append("imageUrl", imageUrl);
+        if (mediaUrls) form.append("mediaUrls", mediaUrls);
+        if (mediaFiles && mediaFiles.files.length) {
+          Array.from(mediaFiles.files).forEach((file) => form.append("media", file));
+        }
+
+        await request(`/api/products/${productId}`, { method: "PUT", body: form });
+        setMsg("Product updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    function toggleEditForm(productId) {
+      const form = document.getElementById(`edit-form-${productId}`);
+      if (!form) return;
+      form.classList.toggle("open");
+    }
+
+    async function loadProducts() {
+      const data = await request("/api/admin/analytics");
+      document.getElementById("adminInventory").innerHTML = data.products.length
+        ? data.products.map((product) => {
+          const status = product.isActive && product.stock > 0
+            ? "<span style='color:var(--good);font-weight:700;'>● In Stock</span>"
+            : (product.isActive
+                ? "<span style='color:#d46800;font-weight:700;'>● Out of Stock</span>"
+                : "<span style='color:var(--danger);font-weight:700;'>● Inactive</span>");
+          const safeDesc = (product.description || "").replace(/'/g, "&#39;");
+          const safeImgUrl = (product.imageUrl || "").replace(/'/g, "&#39;");
+          const mediaUrls = (product.media || []).map((item) => String(item.url || "")).join("\n").replace(/'/g, "&#39;");
+          const mediaCount = (product.media || []).length;
+          return `
+            <div class="list-item product-row">
+              <img class="product-thumb" src="${productImage(product.imageUrl || (product.media && product.media[0] && product.media[0].url))}" alt="${product.name}" />
+              <div>
+                <b>${product.name}</b>
+                <span style="float:right;">${status}</span><br>
+                <span class="note">Category: ${product.category || "Other"} &nbsp;|&nbsp; Price: <b>INR ${product.price}</b> &nbsp;|&nbsp; Stock: <b>${product.stock}</b> &nbsp;|&nbsp; Media: <b>${mediaCount}</b></span>
+                <div class="row" style="margin-top:8px;">
+                  <button class="ghost" onclick="toggleEditForm('${product._id}')">✏️ Edit Product</button>
+                  <button class="${product.isActive ? 'danger' : 'secondary'}" onclick="toggleProductActive('${product._id}', ${product.isActive})">${product.isActive ? 'Deactivate' : 'Activate'}</button>
+                </div>
+                <div id="edit-form-${product._id}" class="edit-form">
+                  <input id="ep-name-${product._id}"  placeholder="Product name"  value='${product.name.replace(/'/g,"&#39;")}' />
+                  <input id="ep-cat-${product._id}"   placeholder="Category"      value='${(product.category||"Crochet").replace(/'/g,"&#39;")}' />
+                  <textarea id="ep-desc-${product._id}" placeholder="Description" style="min-height:56px;">${safeDesc}</textarea>
+                  <div class="row">
+                    <input id="ep-price-${product._id}" type="number" placeholder="Price"  value="${product.price}" />
+                    <input id="ep-stock-${product._id}" type="number" placeholder="Stock"  value="${product.stock}" />
+                  </div>
+                  <input id="ep-img-${product._id}" placeholder="Image URL (leave blank to keep current)" value='${safeImgUrl}' />
+                  <textarea id="ep-media-${product._id}" placeholder="Media URLs (comma or newline separated)">${mediaUrls}</textarea>
+                  <input id="ep-media-files-${product._id}" type="file" accept="image/*,video/*" multiple onchange="handleMediaFileChange('ep-media-files-${product._id}','ep-media-preview-${product._id}')" />
+                  <div id="ep-media-preview-${product._id}" class="media-preview-grid"></div>
+                  <button class="secondary" onclick="saveProductEdit('${product._id}')">💾 Save Changes</button>
+                </div>
+              </div>
+            </div>`;
+        }).join("")
+        : "<p class='note'>No products added yet.</p>";
+    }
+
+    async function loadOrders() {
+      const data = await request("/api/orders");
+      const el = document.getElementById("adminOrders");
+      if (!data.orders.length) {
+        el.innerHTML = "<p class='note'>No orders yet.</p>";
+        return;
+      }
+
+      el.innerHTML = data.orders.map((o) => {
+        const customer = o.userId && typeof o.userId === "object"
+          ? { name: o.userId.name || "Customer", email: o.userId.email || "", phone: o.userId.phone || "" }
+          : { name: "Customer", email: o.supportEmail || "", phone: "" };
+        const supportEmail = o.supportEmail || customer.email || "—";
+        const statusKey = (o.orderStatus || "PLACED").toLowerCase();
+        const payKey = (o.paymentMethod || "COD").toLowerCase();
+        const paidKey = (o.paymentStatus || "PENDING").toLowerCase();
+        const itemRows = o.items.map((i) =>
+          `<tr><td>${i.name}</td><td style='text-align:center;font-weight:700;'>${i.quantity}</td><td style='text-align:right;'>INR ${i.price}</td></tr>`
+        ).join("");
+        const placed = toTime(o.createdAt);
+        return `<div class='order-card'>
+          <div class='order-head'>
+            <div>
+              <b>Order #${o._id.slice(-6)}</b>
+              &nbsp;<span class='chip chip-${statusKey}'>${o.orderStatus}</span>
+              &nbsp;<span class='chip chip-${payKey}'>${o.paymentMethod}</span>
+              &nbsp;<span class='chip chip-${paidKey}'>${o.paymentStatus}</span>
+            </div>
+            <span class='note' style='font-size:12px;'>${placed}</span>
+          </div>
+          <div class='order-body'>
+            <div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;'>
+              <div><span class='note'>Customer</span><br><b>${customer.name}</b></div>
+              <div><span class='note'>Contact</span><br>${customer.email || customer.phone || "—"}</div>
+              <div><span class='note'>Support email</span><br>${supportEmail}</div>
+              <div><span class='note'>Total</span><br><b>INR ${Number(o.totalAmount||0).toFixed(0)}</b></div>
+            </div>
+            <table class='order-items-table'>
+              <thead><tr><th>Item</th><th style='text-align:center;'>Qty</th><th style='text-align:right;'>Price</th></tr></thead>
+              <tbody>${itemRows}</tbody>
+            </table>
+            ${o.ownerReply ? `<div style='font-size:13px;margin-top:4px;'><span class='note'>Your reply: </span>${o.ownerReply}</div>` : ""}
+          </div>
+          <div class='order-foot'>
+            <select id='stt-${o._id}' style='width:auto;flex:1;min-width:130px;'>
+              <option ${o.orderStatus==="PLACED"?"selected":""}>PLACED</option>
+              <option ${o.orderStatus==="CONFIRMED"?"selected":""}>CONFIRMED</option>
+              <option ${o.orderStatus==="PACKED"?"selected":""}>PACKED</option>
+              <option ${o.orderStatus==="SHIPPED"?"selected":""}>SHIPPED</option>
+              <option ${o.orderStatus==="OUT_FOR_DELIVERY"?"selected":""}>OUT_FOR_DELIVERY</option>
+              <option ${o.orderStatus==="DELIVERED"?"selected":""}>DELIVERED</option>
+              <option ${o.orderStatus==="CANCELLED"?"selected":""}>CANCELLED</option>
+            </select>
+            <input id='ag-${o._id}' style='flex:1;min-width:120px;' placeholder='Delivery phone' value='${o.deliveryAgentPhone||""}'  />
+            <input id='tn-${o._id}' style='flex:1;min-width:120px;' placeholder='Tracking note'  value='${(o.trackingLocation&&o.trackingLocation.note)||""}'  />
+            <input id='or-${o._id}' style='flex:2;min-width:160px;' placeholder='Reply to customer' value='${(o.ownerReply||"").replace(/'/g,"&#39;")}' />
+            <button class='ghost'      onclick="quickOrderAction('${o._id}','CONFIRMED')">✅ Accept</button>
+            <button class='danger'     onclick="quickOrderAction('${o._id}','CANCELLED')">❌ Reject</button>
+            <button class='secondary'  onclick="updateOrderStatus('${o._id}')">💾 Update</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+    async function loadFeedback() {
+      const data = await request("/api/admin/feedback");
+      const list = data.feedback || [];
+      const el = document.getElementById("adminFeedback");
+      if (!list.length) {
+        el.innerHTML = "<p class='note'>No feedback has been submitted yet.</p>";
+        return;
+      }
+      el.innerHTML = list.map((item) => {
+        const productName = item.productId && item.productId.name ? escapeHtml(item.productId.name) : "Unknown product";
+        const userName = item.userId && item.userId.name ? escapeHtml(item.userId.name) : "Customer";
+        const created = new Date(item.createdAt).toLocaleString();
+        const media = (item.media || []).map((m) => {
+          if (m.type === "video") {
+            return `<div style='width:120px;'><video src='${escapeHtml(m.url)}' controls muted playsinline style='width:100%;border-radius:8px;'></video></div>`;
+          }
+          return `<div style='width:120px;'><img src='${escapeHtml(m.url)}' alt='Feedback media' style='width:100%;border-radius:8px;' /></div>`;
+        }).join("");
+        return `<div class='list-item' style='gap:8px;'>
+          <div><b>${productName}</b> by ${userName} <span class='note'>${created}</span></div>
+          <div style='margin-top:6px;'>${escapeHtml(item.message) || "No message."}</div>
+          ${media ? `<div style='display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;'>${media}</div>` : ""}
+        </div>`;
+      }).join("");
+    }
+    async function loadActivities() {
+      const data = await request("/api/admin/activities?limit=160");
+      const list = data.activities || [];
+      document.getElementById("adminActivities").innerHTML = list.length
+        ? list.map((activity) => {
+          const name = activity.actorName || (activity.userId && activity.userId.name) || "Unknown";
+          const contact = activity.actorEmail || activity.actorPhone || "No contact";
+          const meta = activity.meta && Object.keys(activity.meta).length
+            ? `<br><span class='note'>Details: ${JSON.stringify(activity.meta)}</span>`
+            : "";
+          return `<div class='list-item'>
+            <b>${prettyAction(activity.action)}</b><br>
+            <span class='note'>User: ${name} | ${contact}</span><br>
+            <span class='note'>Time: ${toTime(activity.createdAt)}</span><br>
+            <span class='note'>Route: ${activity.route || "-"}</span>
+            ${meta}
+          </div>`;
+        }).join("")
+        : "<p class='note'>No activities yet.</p>";
+    }
+
+    async function updateCustomRequest(requestId) {
+      try {
+        const status = document.getElementById(`crs-${requestId}`).value;
+        const adminReply = document.getElementById(`crr-${requestId}`).value;
+        await request(`/api/admin/custom-requests/${requestId}`, {
+          method: "PUT",
+          body: JSON.stringify({ status, adminReply })
+        });
+        setMsg("Customization request updated.");
+        await refreshAll();
+      } catch (e) {
+        setMsg(e.message, true);
+      }
+    }
+
+    async function loadCustomRequests() {
+      const data = await request("/api/admin/analytics");
+      const requests = data.customRequests || [];
+      const el = document.getElementById("adminCustomRequests");
+      if (!requests.length) {
+        el.innerHTML = "<p class='note'>No customization requests yet.</p>";
+        return;
+      }
+
+      el.innerHTML = requests.map((item) => {
+        const customer = item.userId && typeof item.userId === "object"
+          ? `${item.userId.name || item.customerName || "Customer"}${item.customerEmail ? ` | ${item.customerEmail}` : ""}${item.customerPhone ? ` | ${item.customerPhone}` : ""}`
+          : `${item.customerName || "Customer"}${item.customerEmail ? ` | ${item.customerEmail}` : ""}${item.customerPhone ? ` | ${item.customerPhone}` : ""}`;
+        const waLink = whatsappLink(item.customerPhone, `Hello ${item.customerName || ""}, this is ArtfullHours regarding your customization request: ${item.title}`);
+        return `<div class='list-item'>
+          <b>${item.title}</b><br>
+          <span class='note'>Customer: ${customer}</span><br>
+          <span class='note'>Description: ${item.description}</span><br>
+          <span class='note'>Status: ${String(item.status || "NEW").replace(/_/g, " ")}</span><br>
+          <span class='note'>Submitted: ${toTime(item.createdAt)}</span><br>
+          ${item.referenceImageUrl ? `<a href='${item.referenceImageUrl}' target='_blank' rel='noopener noreferrer'><img class='request-thumb' src='${item.referenceImageUrl}' alt='Reference for ${item.title}' /></a>` : ""}
+          <div class='row' style='margin-top:8px;'>
+            <select id='crs-${item._id}'>
+              <option ${item.status === "NEW" ? "selected" : ""}>NEW</option>
+              <option ${item.status === "REVIEWING" ? "selected" : ""}>REVIEWING</option>
+              <option ${item.status === "POSSIBLE" ? "selected" : ""}>POSSIBLE</option>
+              <option ${item.status === "NOT_POSSIBLE" ? "selected" : ""}>NOT_POSSIBLE</option>
+              <option ${item.status === "COMPLETED" ? "selected" : ""}>COMPLETED</option>
+            </select>
+            <input id='crr-${item._id}' placeholder='Reply to customer' value='${(item.adminReply || "").replace(/'/g, "&#39;")}' />
+            <button class='secondary' onclick="updateCustomRequest('${item._id}')">Save Reply</button>
+          </div>
+          ${waLink ? `<div style='margin-top:8px;'><a class='ghost' style='display:inline-block; text-decoration:none;' href='${waLink}' target='_blank' rel='noopener noreferrer'>Reply on WhatsApp</a></div>` : ""}
+        </div>`;
+      }).join("");
+    }
+
+    async function refreshAll() {
+      await Promise.all([loadAnalytics(), loadProducts(), loadOrders(), loadFeedback(), loadActivities(), loadCustomRequests()]);
+    }
+
+    async function boot() {
+      if (!token) {
+        console.warn("No token found, redirecting to login");
+        window.location.href = "/login.html";
+        return;
+      }
+
+      try {
+        console.log("Fetching admin user info...");
+        const me = await request("/api/auth/me");
+        currentUser = me.user;
+        console.log("Current user role:", currentUser.role);
+        
+        if (currentUser.role !== "admin") {
+          console.warn("User is not an admin, redirecting to login");
+          window.location.href = "/login.html";
+          return;
+        }
+
+        document.getElementById("adminIdentity").textContent = `Logged in as ${currentUser.name} (${currentUser.email || "admin"})`;
+        await refreshAll();
+      } catch (error) {
+        console.error("Boot failed:", error.message);
+        // Show error message to user instead of silently logging out
+        const appMsg = document.getElementById("appMsg");
+        if (appMsg) {
+          appMsg.textContent = `Authentication error: ${error.message}. Redirecting to login...`;
+          appMsg.style.color = "var(--danger)";
+        }
+        // Wait a bit for user to see the error before redirecting
+        setTimeout(() => {
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          window.location.href = "/login.html";
+        }, 2500);
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

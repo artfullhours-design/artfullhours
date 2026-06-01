@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtfullHours | Handmade Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8f2e8;
+      --ink: #1f1b17;
+      --muted: #6b6358;
+      --card: rgba(255, 252, 246, 0.78);
+      --brand: #e56a2d;
+      --brand-dark: #b64616;
+      --accent: #1b7f70;
+      --line: #e8dac7;
+      --danger: #bb2323;
+      --good: #12773d;
+      --shadow: 0 14px 30px rgba(41, 32, 26, 0.12);
+      --auth-bg-image: url("./assets/Artfullhourslogo.png");
+      --bg-image-opacity: 0.2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(16, 12, 8, 0.44), rgba(16, 12, 8, 0.18)),
+        radial-gradient(circle at 12% 8%, rgba(229,106,45,0.18), transparent 38%),
+        radial-gradient(circle at 88% 88%, rgba(27,127,112,0.18), transparent 38%),
+        linear-gradient(130deg, #f9f2e7 0%, #f3ecdf 60%, #efe5d5 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--auth-bg-image);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center center;
+      opacity: var(--bg-image-opacity);
+      pointer-events: none;
+      z-index: -1;
+      background-attachment: fixed;
+      transform: translateZ(0);
+    }
+
+    h1, h2, h3 {
+      font-family: "DM Serif Display", serif;
+      font-weight: 400;
+      line-height: 1.18;
+    }
+
+    .container {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 20px 0 110px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-shell {
+      min-height: calc(100vh - 40px);
+      display: grid;
+      place-items: center;
+    }
+
+    .auth-wrap {
+      width: min(1040px, 100%);
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+    }
+
+    .auth-stage {
+      display: grid;
+      gap: 18px;
+      width: 100%;
+    }
+
+    .auth-left {
+      padding: 28px;
+      background:
+        linear-gradient(145deg, rgba(229,106,45,0.9), rgba(181,66,22,0.88));
+      color: #fff;
+      border-radius: 20px;
+      min-height: 520px;
+      display: grid;
+      align-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-left::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.16), transparent 35%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.22), transparent 28%);
+      pointer-events: none;
+    }
+
+    .auth-left > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-left p { color: #ffe7d7; max-width: 450px; }
+
+    .auth-right {
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255, 250, 243, 0.78);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .auth-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff3e5;
+    }
+
+    .auth-feature-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .auth-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff7ef;
+    }
+
+    .auth-feature strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .auth-feature span {
+      display: block;
+      font-size: 13px;
+      color: #ffe7d7;
+    }
+
+    .feature-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .auth-page {
+      display: none;
+      gap: 14px;
+    }
+
+    .auth-page.active {
+      display: grid;
+    }
+
+    .gateway-copy {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .gateway-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice-card {
+      border: 1px solid #ead9c4;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 253, 249, 0.88) 0%, rgba(255, 245, 233, 0.8) 100%);
+      padding: 18px;
+      text-align: left;
+      cursor: pointer;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(61, 44, 34, 0.08);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .choice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(61, 44, 34, 0.12);
+      border-color: #d8b389;
+    }
+
+    .choice-emoji {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      font-size: 28px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: inset 0 0 0 1px #f2dfcb;
+    }
+
+    .choice-card h3 {
+      font-size: 28px;
+    }
+
+    .choice-card p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .choice-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    .back-link {
+      border: none;
+      background: transparent;
+      color: var(--brand-dark);
+      font-weight: 700;
+      justify-self: start;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .auth-form-card {
+      border: 1px solid #ecd9c2;
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,247,236,0.82));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .auth-form-card h2 {
+      margin-bottom: 8px;
+    }
+
+    .auth-form-card .note {
+      margin-top: 4px;
+    }
+
+    .stack { display: grid; gap: 10px; }
+    .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #d8c8b6;
+      border-radius: 10px;
+      padding: 11px;
+      font-family: inherit;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-decoration { display: none; -webkit-appearance: none; }
+
+    button.primary, button.secondary, button.ghost, button.danger {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary { background: var(--brand); color: #fff; }
+    button.secondary { background: var(--accent); color: #fff; }
+    button.ghost { background: #f0e3d2; color: #5a3c2e; }
+    button.danger { background: var(--danger); color: #fff; }
+
+    .note { color: var(--muted); font-size: 13px; }
+    .msg { min-height: 20px; margin-top: 8px; font-weight: 700; color: var(--good); }
+
+    .top-nav {
+      position: sticky;
+      top: 10px;
+      z-index: 1000;
+      isolation: isolate;
+      background: rgba(255, 252, 246, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .top-row {
+      display: grid;
+      gap: 10px;
+      align-items: center;
+      grid-template-columns: 220px 1fr auto;
+    }
+
+    .logo {
+      font-family: "DM Serif Display", serif;
+      font-size: 30px;
+      color: var(--brand-dark);
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .icon-btns {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      border: 1px solid #d8c8b6;
+      background: rgba(255, 255, 255, 0.76);
+      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .cat-chip {
+      border: 1px solid #dccab5;
+      background: rgba(255, 255, 255, 0.74);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #533d31;
+    }
+
+    .cat-chip.active { background: #f2dfcb; border-color: #cfab82; }
+
+    #app { display: none; }
+
+    .hero {
+      margin-top: 14px;
+      background: linear-gradient(120deg, rgba(255,245,230,0.72), rgba(255,231,203,0.7));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 112px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+
+    #welcomeLine {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+    }
+
+    #roleLine {
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .products {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .product {
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: 185px auto;
+    }
+
+    .product img { width: 100%; height: 100%; object-fit: cover; background: #f2eee8; }
+    .product .body { padding: 12px; display: grid; gap: 8px; }
+    .price { font-weight: 800; color: #96390f; }
+
+    .panels { margin-top: 16px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .list-item {
+      border: 1px solid #e6d5c2;
+      background: rgba(255, 254, 251, 0.76);
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 8px;
+    }
+
+    .account-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1.1fr 1fr;
+      margin-top: 10px;
+    }
+
+    .account-card {
+      border: 1px solid #e6d5c2;
+      background: rgba(255, 254, 251, 0.76);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .account-stats {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+    }
+
+    .stat-card {
+      border: 1px solid #e4d6c4;
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,0.8);
+    }
+
+    .stat-card.clickable {
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .stat-card.clickable:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(127, 45, 15, 0.1);
+    }
+
+    .stat-card.clickable:focus-visible {
+      outline: 2px solid #d26835;
+      outline-offset: 2px;
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-card .value {
+      font-weight: 800;
+      margin-top: 4px;
+      color: #7f2d0f;
+    }
+
+    .account-actions {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-top: 10px;
+    }
+
+    .history-list {
+      max-height: 310px;
+      overflow: auto;
+      padding-right: 4px;
+      margin-top: 8px;
+    }
+
+    .request-thumb {
+      width: 84px;
+      height: 84px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #dfceb9;
+      background: #f6eee3;
+      margin-top: 8px;
+      display: block;
+    }
+
+    @media (max-width: 980px) {
+      :root { --bg-image-opacity: 0.18; }
+
+      .auth-wrap { grid-template-columns: 1fr; }
+      .auth-left { min-height: auto; }
+      .top-row { grid-template-columns: 1fr; }
+      .logo { font-size: 26px; }
+      .account-grid { grid-template-columns: 1fr; }
+      .account-stats { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      :root { --bg-image-opacity: 0.14; }
+
+      body::before {
+        background-attachment: scroll;
+      }
+
+      .container {
+        width: min(100% - 16px, 1220px);
+        padding: 14px 0 72px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section id="auth" class="auth-shell">
+      <div class="auth-wrap auth-stage">
+        <aside class="auth-left card">
+          <div>
+            <div class="auth-kicker">✨ Handcrafted with care</div>
+            <h1>ArtfullHours Handmade Marketplace</h1>
+            <p>Shop premium crochet, handcrafted gifts, paintings and more. Fast login with password or OTP, secure account details, wishlist and smooth checkout.</p>
+            <div class="auth-feature-list">
+              <div class="auth-feature">
+                <div class="feature-icon">🎁</div>
+                <div>
+                  <strong>Curated handmade finds</strong>
+                  <span>Crochet, art pieces, gifting collections and custom-made picks.</span>
+                </div>
+              </div>
+              <div class="auth-feature">
+                <div class="feature-icon">🔐</div>
+                <div>
+                  <strong>Easy secure access</strong>
+                  <span>Continue with password login or quick OTP on your email.</span>
+                </div>
+              </div>
+              <div class="auth-feature">
+                <div class="feature-icon">🚚</div>
+                <div>
+                  <strong>Smooth checkout flow</strong>
+                  <span>Track orders, manage wishlist and keep account details ready.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="note">Owner panel available after owner login.</div>
+        </aside>
+
+        <div class="auth-right">
+          <section id="authGateway" class="auth-page active">
+            <div class="gateway-copy">
+              <h2>Choose how you want to enter</h2>
+              <p class="note">Pick one path to continue. You can switch any time before signing in.</p>
+            </div>
+            <div class="gateway-grid">
+              <button type="button" class="choice-card" onclick="window.location.href='signup.html'">
+                <div class="choice-emoji">🌸</div>
+                <div>
+                  <h3>Sign Up</h3>
+                  <p>Create a new account to save your wishlist, track orders and shop faster next time.</p>
+                </div>
+                <span class="choice-action">Create my account →</span>
+              </button>
+
+              <button type="button" class="choice-card" onclick="window.location.href='login.html'">
+                <div class="choice-emoji">🗝️</div>
+                <div>
+                  <h3>Login</h3>
+                  <p>Continue with your password or use OTP if your account is already set up with email.</p>
+                </div>
+                <span class="choice-action">Take me to login →</span>
+              </button>
+            </div>
+          </section>
+
+          <section id="authSignup" class="auth-page">
+            <button type="button" class="back-link" onclick="setAuthView('gateway')">← Back</button>
+            <div class="auth-form-card stack">
+              <h2>Create your account</h2>
+              <p class="note">Use your email for OTP login while SMS is unavailable.</p>
+              <input id="ah_n7x2" name="ah_n7x2" type="search" autocomplete="off" placeholder="Full Name" />
+              <div class="row">
+                <input id="ah_e4k9" name="ah_e4k9" type="search" autocomplete="off" placeholder="Email (recommended)" />
+                <input id="ah_p3m1" name="ah_p3m1" type="search" autocomplete="off" placeholder="Phone (optional)" inputmode="tel" />
+              </div>
+              <input id="ah_w8q5" name="ah_w8q5" autocomplete="new-password" placeholder="Create Password" type="password" />
+              <button type="button" class="primary" onclick="signup()">Create Account</button>
+            </div>
+          </section>
+
+          <section id="authLogin" class="auth-page">
+            <button type="button" class="back-link" onclick="setAuthView('gateway')">← Back</button>
+            <div class="auth-form-card stack">
+              <h2>Login to continue</h2>
+              <input id="ah_u6r3" name="ah_u6r3" type="search" autocomplete="off" placeholder="Email or Phone" />
+              <input id="ah_k1v9" name="ah_k1v9" autocomplete="new-password" placeholder="Password" type="password" />
+              <button type="button" class="secondary" onclick="loginWithPassword()">Login with Password</button>
+
+              <div class="row">
+                <button type="button" class="ghost" onclick="requestLoginOtp()">Get OTP</button>
+                <input id="liOtp" name="x_otp_x" placeholder="Enter OTP" autocomplete="nah" />
+              </div>
+              <button type="button" class="secondary" onclick="loginWithOtp()">Login with OTP</button>
+
+              <button type="button" class="ghost" onclick="openForgotPassword()">Forgot Password?</button>
+              <section id="forgotBox" style="display:none;" class="stack">
+                <div class="row">
+                  <button type="button" class="ghost" onclick="requestResetOtp()">Send Reset OTP</button>
+                  <input id="fpOtp" name="x_fotp_x" placeholder="Reset OTP" autocomplete="nah" />
+                </div>
+                <input id="fpNewPassword" name="x_fpw_x" type="password" placeholder="New Password" autocomplete="nah" />
+                <button type="button" class="secondary" onclick="resetPassword()">Update Password</button>
+              </section>
+            </div>
+          </section>
+
+          <div id="authMsg" class="msg"></div>
+          <div id="sessionPrompt" class="note" style="display:none; margin-top:6px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app">
+      <header class="top-nav">
+        <div class="top-row">
+          <div class="logo">Art Full Hours</div>
+          <div class="search">
+            <input id="searchInput" placeholder="Search crochet keychains, gifts, paintings..." oninput="renderProducts()" />
+            <button class="primary" onclick="renderProducts()">Search</button>
+          </div>
+          <div class="icon-btns">
+            <button class="icon-btn" title="Home" onclick="switchPanel('shop')">🏠</button>
+            <button class="icon-btn" title="Wishlist" onclick="switchPanel('wishlist')">❤</button>
+            <button class="icon-btn" title="Cart" onclick="switchPanel('cart')">🛒</button>
+            <button class="icon-btn" title="Orders" onclick="switchPanel('orders')">📦</button>
+            <button class="icon-btn" title="Account" onclick="switchPanel('account')">👤</button>
+          </div>
+        </div>
+
+        <div class="categories" id="categoryBar"></div>
+      </header>
+
+      <section class="hero">
+        <h2 id="welcomeLine">Welcome to ArtfullHours</h2>
+        <p class="note" id="roleLine">Handmade treasures crafted with heart, picked for your next favorite corner.</p>
+      </section>
+
+      <section id="shopSection" class="panel active">
+        <div class="products" id="products"></div>
+      </section>
+
+      <section class="panels">
+        <section id="panel-cart" class="panel card" style="padding:14px;">
+          <h2>Your Cart</h2>
+          <div id="cartList" style="margin-top:10px;"></div>
+          <input id="orderSupportEmail" style="margin-top:10px;" placeholder="Support email for order updates" />
+          <div class="row" style="margin-top:10px;">
+            <select id="paymentMethod">
+              <option value="COD">Cash on Delivery</option>
+              <option value="UPI">UPI</option>
+              <option value="CARD">Card</option>
+            </select>
+            <button class="primary" onclick="checkout()">Buy Now</button>
+          </div>
+        </section>
+
+        <section id="panel-wishlist" class="panel card" style="padding:14px;">
+          <h2>Wishlist</h2>
+          <div id="wishlistList" style="margin-top:10px;"></div>
+        </section>
+
+        <section id="panel-orders" class="panel card" style="padding:14px;">
+          <h2>Orders & Tracking</h2>
+          <div id="ordersList" style="margin-top:10px;"></div>
+        </section>
+
+        <section id="panel-customize" class="panel card" style="padding:14px;">
+          <h2>Customize Your Idea</h2>
+          <p class="note">Upload a reference photo and describe what you want made. The owner will see it in admin panel and can reply if it is possible.</p>
+          <div class="stack" style="margin-top:10px;">
+            <input id="customTitle" placeholder="What would you like customized?" />
+            <textarea id="customDescription" placeholder="Describe colors, size, theme, names, or special details you want."></textarea>
+            <div class="row">
+              <input id="customImageUrl" placeholder="Reference image URL (optional)" />
+              <input id="customImageFile" type="file" accept="image/*" />
+            </div>
+            <button class="primary" onclick="submitCustomRequest()">Send Customization Request</button>
+          </div>
+
+          <h3 style="margin-top:16px;">Your Custom Requests</h3>
+          <div id="customRequestList" style="margin-top:8px;"></div>
+        </section>
+
+        <section id="panel-account" class="panel card" style="padding:14px;">
+          <h2>Your Account</h2>
+          <p class="note">Manage your profile, review purchases, and quickly jump back to shopping.</p>
+
+          <div class="account-stats">
+            <div class="stat-card">
+              <div class="label">Total Orders</div>
+              <div class="value" id="accTotalOrders">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Total Spent</div>
+              <div class="value" id="accTotalSpent">INR 0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Recent Purchase</div>
+              <div class="value" id="accRecentPurchase">-</div>
+            </div>
+            <div class="stat-card clickable" role="button" tabindex="0" onclick="switchPanel('customize')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchPanel('customize');}">
+              <div class="label">Custom Orders</div>
+              <div class="value" id="accCustomOrders">0</div>
+            </div>
+          </div>
+
+          <div class="account-grid">
+            <div class="account-card">
+              <h3 style="margin-bottom:8px;">Profile Details</h3>
+              <div class="stack" style="margin-top:8px;">
+                <div class="row">
+                  <input id="accName" placeholder="Full Name" />
+                  <input id="accPhone" placeholder="Phone" />
+                </div>
+                <div class="row">
+                  <input id="accEmail" placeholder="Email" disabled />
+                  <input id="accPincode" placeholder="Pincode" />
+                </div>
+                <input id="accLine1" placeholder="Address line 1" />
+                <input id="accLine2" placeholder="Address line 2" />
+                <div class="row">
+                  <input id="accCity" placeholder="City" />
+                  <input id="accState" placeholder="State" />
+                </div>
+                <button class="secondary" onclick="saveAccount()">Save Profile</button>
+              </div>
+            </div>
+
+            <div class="account-card">
+              <h3 style="margin-bottom:8px;">Purchase History</h3>
+              <p class="note">Your recent orders and items you bought.</p>
+              <div id="accountHistory" class="history-list"></div>
+            </div>
+          </div>
+
+          <div class="account-actions">
+            <button class="primary" onclick="switchPanel('shop')">Home</button>
+            <button class="ghost" onclick="switchPanel('orders')">View All Orders</button>
+            <button class="danger" onclick="logout()">Logout</button>
+          </div>
+        </section>
+
+      </section>
+
+      <div id="appMsg" class="msg"></div>
+    </section>
+  </div>
+
+  <script>
+    const normalizeApiBase = (base) => String(base || "").trim().replace(/\/$/, "");
+    const uniqueApiBases = (items) => Array.from(new Set(items.filter(Boolean)));
+
+    function getApiCandidates() {
+      const override = normalizeApiBase(localStorage.getItem("apiBaseUrl"));
+      const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+      const isFileProtocol = window.location.protocol === "file:";
+      const fromLocation = normalizeApiBase(window.location.origin);
+      const candidates = [];
+
+      if (override) candidates.push(override);
+
+      if (isFileProtocol) {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+        return uniqueApiBases(candidates);
+      }
+
+      if (isLocalHost && window.location.port && window.location.port !== "5000") {
+        candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+      }
+
+      candidates.push(fromLocation, "", "http://localhost:5000", "http://127.0.0.1:5000");
+      return uniqueApiBases(candidates);
+    }
+
+    let api = getApiCandidates()[0] || "";
+
+    function rememberWorkingApi(base) {
+      api = normalizeApiBase(base);
+      if (api) {
+        localStorage.setItem("apiBaseUrl", api);
+      } else {
+        localStorage.removeItem("apiBaseUrl");
+      }
+    }
+
+    function parseJsonSafe(text) {
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_e) {
+        return {};
+      }
+    }
+    const AUTH_VIEW_KEY = "authView";
+    let token = localStorage.getItem("token") || "";
+    let currentUser = null;
+    let products = [];
+    let cachedOrders = [];
+    let activeCategory = "All";
+
+    function toTitleCase(value) {
+      return String(value || "")
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(" ");
+    }
+
+    function normalizeCategoryName(rawCategory) {
+      const cleaned = String(rawCategory || "").trim();
+      if (!cleaned) return "Other";
+
+      const key = cleaned.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      if (key === "crochet" || key === "crochets") return "Crochet";
+      if (key === "handmade gift" || key === "handmade gifts") return "Handmade Gifts";
+      if (key === "painting" || key === "paintings") return "Paintings";
+
+      return toTitleCase(cleaned);
+    }
+
+    // Auth field references (IDs are intentionally random to defeat browser autofill heuristics)
+    const suName       = document.getElementById("ah_n7x2");
+    const suEmail      = document.getElementById("ah_e4k9");
+    const suPhone      = document.getElementById("ah_p3m1");
+    const suPassword   = document.getElementById("ah_w8q5");
+    const liIdentifier = document.getElementById("ah_u6r3");
+    const liPassword   = document.getElementById("ah_k1v9");
+    const liOtp        = document.getElementById("liOtp");
+    const fpOtp        = document.getElementById("fpOtp");
+    const fpNewPassword = document.getElementById("fpNewPassword");
+
+    function rearmReadonly(el) {
+      el.value = "";
+    }
+
+    const accName = document.getElementById("accName");
+    const accPhone = document.getElementById("accPhone");
+    const accEmail = document.getElementById("accEmail");
+    const accPincode = document.getElementById("accPincode");
+    const accLine1 = document.getElementById("accLine1");
+    const accLine2 = document.getElementById("accLine2");
+    const accCity = document.getElementById("accCity");
+    const accState = document.getElementById("accState");
+    const orderSupportEmail = document.getElementById("orderSupportEmail");
+    const customTitle = document.getElementById("customTitle");
+    const customDescription = document.getElementById("customDescription");
+    const customImageUrl = document.getElementById("customImageUrl");
+    const customImageFile = document.getElementById("customImageFile");
+
+    async function request(path, options = {}) {
+      const headers = options.headers || {};
+      if (!(options.body instanceof FormData)) {
+        headers["Content-Type"] = headers["Content-Type"] || "application/json";
+      }
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const candidates = uniqueApiBases([api, ...getApiCandidates()]);
+      const tried = [];
+
+      for (let i = 0; i < candidates.length; i += 1) {
+        const base = candidates[i];
+        const url = `${base}${path}`;
+
+        let res;
+        try {
+          res = await fetch(url, { ...options, headers });
+        } catch (_networkError) {
+          tried.push(url);
+          continue;
+        }
+
+        const text = await res.text();
+        const data = parseJsonSafe(text);
+
+        if (res.ok) {
+          rememberWorkingApi(base);
+          return data;
+        }
+
+        if (res.status === 404 && i < candidates.length - 1) {
+          tried.push(url);
+          continue;
+        }
+
+        throw new Error(data.message || `Request failed (${res.status})`);
+      }
+
+      const attempted = tried.length ? ` Tried: ${tried.join(", ")}` : "";
+      throw new Error(`Cannot reach server. Start backend using .\\start-local.ps1 and open http://localhost:5000.${attempted}`);
+    }
+
+    async function recordVisit() {
+      try {
+        await request("/api/visits", {
+          method: "POST",
+          body: JSON.stringify({ route: window.location.pathname })
+        });
+      } catch (_e) {
+      }
+    }
+
+    function setMsg(id, text, bad = false) {
+      const el = document.getElementById(id);
+      el.style.color = bad ? "var(--danger)" : "var(--good)";
+      el.textContent = text;
+      setTimeout(() => { if (el.textContent === text) el.textContent = ""; }, 4500);
+    }
+
+    function hideSessionPrompt() {
+      const el = document.getElementById("sessionPrompt");
+      el.style.display = "none";
+      el.innerHTML = "";
+    }
+
+    function showSessionPrompt(user) {
+      const name = user.name || user.email || user.phone || "Saved user";
+      const el = document.getElementById("sessionPrompt");
+      el.innerHTML = `
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span>Saved session found for <b>${name}</b>.</span>
+          <button type="button" class="ghost" onclick="continueSavedSession()">Continue</button>
+          <button type="button" class="ghost" onclick="useDifferentAccount()">Use Different Account</button>
+        </div>`;
+      el.style.display = "block";
+    }
+
+    function useDifferentAccount() {
+      token = "";
+      currentUser = null;
+      localStorage.removeItem("token");
+      hideSessionPrompt();
+      setAuthView("login");
+    }
+
+    async function continueSavedSession() {
+      if (!currentUser) return;
+      hideSessionPrompt();
+      await enterApp();
+    }
+
+    function setAuthView(view) {
+      sessionStorage.setItem(AUTH_VIEW_KEY, view);
+      document.getElementById("authGateway").classList.toggle("active", view === "gateway");
+      document.getElementById("authSignup").classList.toggle("active", view === "signup");
+      document.getElementById("authLogin").classList.toggle("active", view === "login");
+      if (view === "login") {
+        resetLoginInputs();
+      }
+      if (view === "signup") {
+        resetSignupInputs();
+      }
+      if (view !== "login") {
+        document.getElementById("forgotBox").style.display = "none";
+      }
+    }
+
+    function resetSignupInputs() {
+      [suName, suEmail, suPhone, suPassword].forEach(rearmReadonly);
+    }
+
+    function resetLoginInputs() {
+      [liIdentifier, liPassword].forEach(rearmReadonly);
+      if (liOtp) liOtp.value = "";
+      if (fpOtp) fpOtp.value = "";
+      if (fpNewPassword) fpNewPassword.value = "";
+    }
+
+    function openForgotPassword() {
+      const box = document.getElementById("forgotBox");
+      box.style.display = box.style.display === "none" ? "grid" : "none";
+    }
+
+    async function signup() {
+      try {
+        const payload = {
+          name: suName.value.trim(),
+          email: suEmail.value.trim(),
+          phone: suPhone.value.trim(),
+          password: suPassword.value
+        };
+        const data = await request("/api/auth/signup", { method: "POST", body: JSON.stringify(payload) });
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem("token", token);
+        hideSessionPrompt();
+        setMsg("authMsg", "Signup successful");
+        enterApp();
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    async function loginWithPassword() {
+      try {
+        if (!liIdentifier.value.trim() || !liPassword.value) {
+          setMsg("authMsg", "Please enter your email/phone and password.", true);
+          return;
+        }
+        const data = await request("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ identifier: liIdentifier.value.trim(), password: liPassword.value })
+        });
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem("token", token);
+        hideSessionPrompt();
+        setMsg("authMsg", "Login successful");
+        enterApp();
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    async function requestLoginOtp() {
+      try {
+        const data = await request("/api/auth/request-otp", {
+          method: "POST",
+          body: JSON.stringify({ identifier: liIdentifier.value.trim(), purpose: "LOGIN" })
+        });
+        if (data.otp) {
+          setMsg("authMsg", `OTP: ${data.otp} (demo mode)`);
+        } else {
+          setMsg("authMsg", data.message || "OTP sent successfully");
+        }
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    async function loginWithOtp() {
+      try {
+        const data = await request("/api/auth/login-otp", {
+          method: "POST",
+          body: JSON.stringify({ identifier: liIdentifier.value.trim(), otp: liOtp.value.trim() })
+        });
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem("token", token);
+        hideSessionPrompt();
+        setMsg("authMsg", "OTP login successful");
+        enterApp();
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    async function requestResetOtp() {
+      try {
+        const data = await request("/api/auth/forgot-password", {
+          method: "POST",
+          body: JSON.stringify({ identifier: liIdentifier.value.trim() })
+        });
+        if (data.otp) {
+          setMsg("authMsg", `Reset OTP: ${data.otp} (demo mode)`);
+        } else {
+          setMsg("authMsg", data.message || "Reset OTP sent successfully");
+        }
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    async function resetPassword() {
+      try {
+        await request("/api/auth/reset-password", {
+          method: "POST",
+          body: JSON.stringify({
+            identifier: liIdentifier.value.trim(),
+            otp: fpOtp.value.trim(),
+            newPassword: fpNewPassword.value
+          })
+        });
+        setMsg("authMsg", "Password updated. You can login now.");
+      } catch (e) {
+        setMsg("authMsg", e.message, true);
+      }
+    }
+
+    function logout(resetView = true) {
+      token = "";
+      currentUser = null;
+      localStorage.removeItem("token");
+      document.getElementById("app").style.display = "none";
+      document.getElementById("auth").style.display = "grid";
+      hideSessionPrompt();
+      if (resetView) {
+        setAuthView("gateway");
+      }
+    }
+
+    function switchPanel(panelName) {
+      document.querySelectorAll(".panel").forEach((el) => el.classList.remove("active"));
+      if (panelName === "shop") {
+        document.getElementById("shopSection").classList.add("active");
+        renderCategoryBar();
+        return;
+      }
+      const target = document.getElementById(`panel-${panelName}`);
+      if (target) target.classList.add("active");
+      renderCategoryBar();
+      if (panelName === "cart") loadCart();
+      if (panelName === "wishlist") loadWishlist();
+      if (panelName === "orders") loadOrders();
+      if (panelName === "customize") loadCustomRequests();
+      if (panelName === "account") {
+        fillAccount();
+        loadAccountHistory();
+      }
+    }
+
+    function renderCategoryBar() {
+      const fixed = ["All", "Crochet", "Handmade Gifts", "Paintings"];
+      const dynamic = Array.from(new Set(products.map((p) => normalizeCategoryName(p.category))));
+      const all = Array.from(new Set([...fixed, ...dynamic]));
+      const bar = document.getElementById("categoryBar");
+      const isCustomizeActive = document.getElementById("panel-customize").classList.contains("active");
+      const categoryButtons = all.map((cat) =>
+        `<button class="cat-chip ${activeCategory === cat ? "active" : ""}" onclick="setCategory('${cat.replace(/'/g, "&#39;")}')">${cat}</button>`
+      ).join("");
+      const customizeButton = `<button class="cat-chip ${isCustomizeActive ? "active" : ""}" onclick="switchPanel('customize')">Customize</button>`;
+      bar.innerHTML = `${categoryButtons}${customizeButton}`;
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      switchPanel("shop");
+      renderCategoryBar();
+      renderProducts();
+    }
+
+    function productImage(url) {
+      return url || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=60";
+    }
+
+    function productCard(p) {
+      const out = p.stock <= 0;
+      const category = normalizeCategoryName(p.category);
+      return `
+        <article class="product">
+          <img src="${productImage(p.imageUrl)}" alt="${p.name}" />
+          <div class="body">
+            <h3>${p.name}</h3>
+            <p class="note">${category}</p>
+            <p class="note">${p.description || "Handmade premium item"}</p>
+            <p class="price">INR ${p.price}</p>
+            <p class="note">${out ? "Out of stock" : `In stock: ${p.stock}`}</p>
+            <div class="row">
+              <button class="ghost" onclick="toggleWishlist('${p._id}')">❤ Wishlist</button>
+              <button class="secondary" ${out ? "disabled" : ""} onclick="addToCart('${p._id}')">🛒 Cart</button>
+            </div>
+            <button class="primary" ${out ? "disabled" : ""} onclick="buyNow('${p._id}')">Buy Now</button>
+          </div>
+        </article>`;
+    }
+
+    function renderProducts() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtered = products.filter((p) => {
+        const normalizedCategory = normalizeCategoryName(p.category);
+        const inCategory = activeCategory === "All" || normalizedCategory.toLowerCase() === activeCategory.toLowerCase();
+        const hay = `${p.name} ${p.description || ""} ${normalizedCategory}`.toLowerCase();
+        const inSearch = !q || hay.includes(q);
+        return inCategory && inSearch;
+      });
+      document.getElementById("products").innerHTML = filtered.map(productCard).join("") || "<p class='note'>No products match your search.</p>";
+    }
+
+    async function loadProducts() {
+      const data = await request("/api/products");
+      products = data.products;
+      renderCategoryBar();
+      renderProducts();
+    }
+
+    async function addToCart(productId, quantity = 1) {
+      try {
+        await request("/api/cart", { method: "POST", body: JSON.stringify({ productId, quantity }) });
+        setMsg("appMsg", "Added to cart");
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function buyNow(productId) {
+      await addToCart(productId, 1);
+      switchPanel("cart");
+    }
+
+    async function toggleWishlist(productId) {
+      try {
+        const data = await request(`/api/wishlist/${productId}`, { method: "POST" });
+        setMsg("appMsg", data.message);
+        await loadWishlist();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function loadWishlist() {
+      const data = await request("/api/wishlist");
+      const el = document.getElementById("wishlistList");
+      if (!data.items.length) {
+        el.innerHTML = "<p class='note'>Your wishlist is empty.</p>";
+        return;
+      }
+      el.innerHTML = data.items.map((it) => {
+        const p = it.productId;
+        if (!p) return "";
+        return `<div class='list-item'><b>${p.name}</b><br><span class='note'>INR ${p.price}</span></div>`;
+      }).join("");
+    }
+
+    async function loadCart() {
+      const data = await request("/api/cart");
+      const el = document.getElementById("cartList");
+      if (!data.items.length) {
+        el.innerHTML = "<p class='note'>Cart is empty.</p>";
+        return;
+      }
+      let total = 0;
+      el.innerHTML = data.items.map((it) => {
+        const p = it.productId;
+        if (!p) return "";
+        total += p.price * it.quantity;
+        return `<div class='list-item'>
+          <b>${p.name}</b> | INR ${p.price} x ${it.quantity}
+          <div class='row' style='margin-top:8px;'>
+            <input id='q-${it._id}' type='number' min='1' value='${it.quantity}' />
+            <button class='ghost' onclick="updateCartQty('${it._id}')">Update</button>
+            <button class='danger' onclick="removeFromCart('${it._id}')">Remove</button>
+          </div>
+        </div>`;
+      }).join("") + `<p style='margin-top:8px; font-weight:800;'>Total: INR ${total}</p>`;
+    }
+
+    async function updateCartQty(itemId) {
+      try {
+        const quantity = Number(document.getElementById(`q-${itemId}`).value || 1);
+        await request(`/api/cart/${itemId}`, { method: "PUT", body: JSON.stringify({ quantity }) });
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function removeFromCart(itemId) {
+      try {
+        await request(`/api/cart/${itemId}`, { method: "DELETE" });
+        await loadCart();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function checkout() {
+      try {
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const supportEmail = orderSupportEmail.value.trim();
+        const shippingAddress = {
+          fullName: accName.value,
+          phone: accPhone.value,
+          line1: accLine1.value,
+          line2: accLine2.value,
+          city: accCity.value,
+          state: accState.value,
+          pincode: accPincode.value
+        };
+
+        const checkoutData = await request("/api/orders/checkout", {
+          method: "POST",
+          body: JSON.stringify({ paymentMethod, shippingAddress, supportEmail })
+        });
+
+        if (checkoutData.onlinePayment) {
+          await startOnlinePayment(checkoutData);
+          return;
+        }
+
+        setMsg("appMsg", checkoutData.message || "Order placed successfully");
+        await loadCart();
+        await loadOrders();
+        await loadProducts();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function ensureRazorpayLoaded() {
+      if (window.Razorpay) return;
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-razorpay="true"]');
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", () => reject(new Error("Failed to load payment gateway")), { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.async = true;
+        script.dataset.razorpay = "true";
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Failed to load payment gateway"));
+        document.body.appendChild(script);
+      });
+    }
+
+    async function startOnlinePayment(checkoutData) {
+      const paymentConfig = checkoutData.razorpay;
+      const localOrderId = checkoutData.order && checkoutData.order._id;
+      if (!paymentConfig || !localOrderId) {
+        throw new Error("Payment setup is incomplete");
+      }
+
+      await ensureRazorpayLoaded();
+
+      await new Promise((resolve, reject) => {
+        const options = {
+          key: paymentConfig.keyId,
+          amount: paymentConfig.amount,
+          currency: paymentConfig.currency,
+          name: paymentConfig.name,
+          description: paymentConfig.description,
+          order_id: paymentConfig.orderId,
+          prefill: paymentConfig.prefill || {},
+          theme: { color: "#e56a2d" },
+          modal: {
+            ondismiss: () => reject(new Error("Payment cancelled by user"))
+          },
+          handler: async (response) => {
+            try {
+              const verifyResult = await request(`/api/orders/${localOrderId}/verify-payment`, {
+                method: "POST",
+                body: JSON.stringify(response)
+              });
+              setMsg("appMsg", verifyResult.message || "Payment successful and order placed");
+              await loadCart();
+              await loadOrders();
+              await loadProducts();
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          }
+        };
+
+        const rz = new window.Razorpay(options);
+        rz.on("payment.failed", (event) => {
+          const reason = event && event.error && event.error.description
+            ? event.error.description
+            : "Online payment failed";
+          reject(new Error(reason));
+        });
+        rz.open();
+      });
+    }
+
+    async function loadOrders() {
+      const data = await request("/api/orders");
+      cachedOrders = data.orders || [];
+      const el = document.getElementById("ordersList");
+      if (!data.orders.length) {
+        el.innerHTML = "<p class='note'>No orders yet.</p>";
+      } else {
+        el.innerHTML = data.orders.map((o) => {
+          const items = o.items.map((i) => `${i.name} x${i.quantity}`).join(", ");
+          return `<div class='list-item'>
+            <b>Order #${o._id.slice(-6)}</b><br>
+            <span class='note'>${items}</span><br>
+            <span class='note'>Status: ${o.orderStatus} | Payment: ${o.paymentMethod} (${o.paymentStatus})</span><br>
+            <span class='note'>Delivery Agent: ${o.deliveryAgentPhone || "Will be assigned"}</span><br>
+            <span class='note'>Tracking: ${(o.trackingLocation && o.trackingLocation.note) || "Pending update"}</span>
+          </div>`;
+        }).join("");
+      }
+    }
+
+    async function submitCustomRequest() {
+      try {
+        const title = customTitle.value.trim();
+        const description = customDescription.value.trim();
+        if (!title || !description) {
+          setMsg("appMsg", "Please add a title and description for your customization request.", true);
+          return;
+        }
+
+        const form = new FormData();
+        form.append("title", title);
+        form.append("description", description);
+        if (customImageUrl.value.trim()) form.append("referenceImageUrl", customImageUrl.value.trim());
+        if (customImageFile.files[0]) form.append("referenceImage", customImageFile.files[0]);
+
+        const data = await request("/api/custom-requests", { method: "POST", body: form });
+        setMsg("appMsg", data.message || "Customization request sent successfully");
+        customTitle.value = "";
+        customDescription.value = "";
+        customImageUrl.value = "";
+        customImageFile.value = "";
+        await loadCustomRequests();
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function loadCustomRequests() {
+      const el = document.getElementById("customRequestList");
+      const customOrdersEl = document.getElementById("accCustomOrders");
+      if (!el) return;
+      try {
+        const data = await request("/api/custom-requests");
+        const requests = data.requests || [];
+        if (customOrdersEl) {
+          const activeCustomOrders = requests.filter((item) => item.status !== "COMPLETED").length;
+          customOrdersEl.textContent = String(activeCustomOrders);
+        }
+        if (!requests.length) {
+          el.innerHTML = "<p class='note'>No custom requests yet.</p>";
+          return;
+        }
+
+        el.innerHTML = requests.map((item) => `
+          <div class='list-item'>
+            <b>${item.title}</b><br>
+            <span class='note'>Status: ${String(item.status || "NEW").replace(/_/g, " ")}</span><br>
+            <span class='note'>${item.description}</span><br>
+            ${item.referenceImageUrl ? `<a href='${item.referenceImageUrl}' target='_blank' rel='noopener noreferrer'><img class='request-thumb' src='${item.referenceImageUrl}' alt='Reference for ${item.title}' /></a>` : ""}
+            ${item.adminReply ? `<span class='note'>Owner reply: ${item.adminReply}</span><br>` : ""}
+            <span class='note'>Updated: ${new Date(item.updatedAt || item.createdAt).toLocaleString()}</span>
+          </div>`).join("");
+      } catch (e) {
+        el.innerHTML = `<p class='note'>Could not load custom requests: ${e.message}</p>`;
+      }
+    }
+
+    async function loadAccountHistory() {
+      const historyEl = document.getElementById("accountHistory");
+      const totalOrdersEl = document.getElementById("accTotalOrders");
+      const totalSpentEl = document.getElementById("accTotalSpent");
+      const recentPurchaseEl = document.getElementById("accRecentPurchase");
+      if (!historyEl || !totalOrdersEl || !totalSpentEl || !recentPurchaseEl) return;
+
+      let orders = cachedOrders;
+      if (!orders.length) {
+        try {
+          const data = await request("/api/orders");
+          orders = data.orders || [];
+          cachedOrders = orders;
+        } catch (e) {
+          historyEl.innerHTML = `<p class='note'>Could not load purchase history: ${e.message}</p>`;
+          return;
+        }
+      }
+
+      const sorted = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const totalSpent = sorted.reduce((sum, order) => sum + Number(order.totalAmount || 0), 0);
+
+      totalOrdersEl.textContent = String(sorted.length);
+      totalSpentEl.textContent = `INR ${totalSpent.toFixed(0)}`;
+      recentPurchaseEl.textContent = sorted[0]
+        ? new Date(sorted[0].createdAt).toLocaleDateString()
+        : "No orders";
+
+      if (!sorted.length) {
+        historyEl.innerHTML = "<p class='note'>No purchases yet. Start exploring handmade products from Home.</p>";
+        return;
+      }
+
+      historyEl.innerHTML = sorted.map((order) => {
+        const items = (order.items || []).map((item) => `${item.name} x${item.quantity}`).join(", ");
+        return `<div class='list-item'>
+          <b>Order #${order._id.slice(-6)}</b><br>
+          <span class='note'>${items || "No item details"}</span><br>
+          <span class='note'>Placed on ${new Date(order.createdAt).toLocaleString()}</span><br>
+          <span class='note'>Total: INR ${Number(order.totalAmount || 0).toFixed(0)} | Status: ${order.orderStatus}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function fillAccount() {
+      accName.value = currentUser.name || "";
+      accPhone.value = currentUser.phone || "";
+      accEmail.value = currentUser.email || "";
+      orderSupportEmail.value = currentUser.email || "";
+      const a = currentUser.address || {};
+      accLine1.value = a.line1 || "";
+      accLine2.value = a.line2 || "";
+      accCity.value = a.city || "";
+      accState.value = a.state || "";
+      accPincode.value = a.pincode || "";
+    }
+
+    async function saveAccount() {
+      try {
+        const payload = {
+          name: accName.value,
+          phone: accPhone.value,
+          address: {
+            fullName: accName.value,
+            phone: accPhone.value,
+            line1: accLine1.value,
+            line2: accLine2.value,
+            city: accCity.value,
+            state: accState.value,
+            pincode: accPincode.value
+          }
+        };
+        const data = await request("/api/account", { method: "PUT", body: JSON.stringify(payload) });
+        currentUser = data.user;
+        setMsg("appMsg", "Account saved");
+      } catch (e) {
+        setMsg("appMsg", e.message, true);
+      }
+    }
+
+    async function enterApp() {
+      if (currentUser.role === "admin") {
+        window.location.href = "/admin.html";
+        return;
+      }
+
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      document.getElementById("welcomeLine").textContent = `Welcome back, ${currentUser.name}`;
+      document.getElementById("roleLine").textContent = "Fresh handmade drops are waiting for you - cozy, colorful, and crafted with love.";
+
+      await recordVisit();
+      await loadProducts();
+      await loadCart();
+      await loadWishlist();
+      await loadOrders();
+      await loadCustomRequests();
+      fillAccount();
+      await loadAccountHistory();
+    }
+
+    async function boot() {
+      const savedView = sessionStorage.getItem(AUTH_VIEW_KEY);
+      if (savedView === "login" || savedView === "signup") {
+        setAuthView(savedView);
+      } else {
+        setAuthView("gateway");
+      }
+
+      await recordVisit();
+
+      if (!token) return;
+      try {
+        const me = await request("/api/auth/me");
+        currentUser = me.user;
+        hideSessionPrompt();
+        await enterApp();
+      } catch (_e) {
+        logout(false);
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>
