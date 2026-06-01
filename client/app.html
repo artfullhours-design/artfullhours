@@ -203,6 +203,43 @@
       box-shadow: var(--shadow);
     }
 
+    .product-media-strip {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0 0;
+      scroll-snap-type: x mandatory;
+    }
+
+    .product-media-strip::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .product-media-strip::-webkit-scrollbar-thumb {
+      background: rgba(27, 127, 112, 0.35);
+      border-radius: 99px;
+    }
+
+    .product-media-item {
+      min-width: 160px;
+      min-height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      scroll-snap-align: start;
+      border: 1px solid var(--line);
+    }
+
+    .product-media-item img,
+    .product-media-item video,
+    .product-media-item iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .product img {
       width: 100%;
       height: 180px;
@@ -347,6 +384,89 @@
       color: white;
       min-height: 20px;
       border-radius: 8px;
+    }
+
+    .feedback-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 50;
+      padding: 24px;
+    }
+
+    .feedback-modal.open {
+      display: flex;
+    }
+
+    .feedback-panel {
+      width: min(980px, 100%);
+      max-height: min(90vh, 900px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .feedback-panel h3 {
+      margin-bottom: 10px;
+    }
+
+    .feedback-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .feedback-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff8f1;
+    }
+
+    .feedback-item .feedback-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .feedback-item .feedback-media {
+      display: grid;
+      grid-auto-flow: column;
+      gap: 10px;
+      overflow-x: auto;
+      padding-top: 8px;
+    }
+
+    .feedback-media-item {
+      min-width: 120px;
+      min-height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f6f0e8;
+      border: 1px solid var(--line);
+    }
+
+    .feedback-media-item img,
+    .feedback-media-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .feedback-form textarea,
+    .feedback-form input[type="file"] {
+      width: 100%;
+      margin-bottom: 10px;
     }
 
     .account-stats {
@@ -582,6 +702,28 @@
     <div id="appMsg" class="msg"></div>
   </div>
 
+  <div id="feedbackModal" class="feedback-modal" onclick="if(event.target.id==='feedbackModal') closeFeedbackModal()">
+    <div class="feedback-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <h3 id="feedbackTitle">Product Feedback</h3>
+          <p class="note" id="feedbackSubtitle">Share your experience with this delivered item.</p>
+        </div>
+        <button class="ghost" onclick="closeFeedbackModal()">Close</button>
+      </div>
+      <div class="feedback-form" style="margin-top:14px;">
+        <textarea id="feedbackMessage" rows="4" placeholder="Write your feedback here..."></textarea>
+        <textarea id="feedbackMediaUrls" rows="3" placeholder="Media URLs (image or video) - one per line"></textarea>
+        <input id="feedbackMediaFiles" type="file" accept="image/*,video/*" multiple />
+        <button class="primary" onclick="submitFeedback()">Submit Feedback</button>
+      </div>
+      <div style="margin-top:18px;">
+        <h4>All feedback for this product</h4>
+        <div id="feedbackList" class="feedback-grid"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== AUTH CHECK =====
     function buildClientPath(path) {
@@ -747,12 +889,36 @@
       return url || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=60";
     }
 
+    function getProductMedia(p) {
+      if (Array.isArray(p.media) && p.media.length) {
+        return p.media.map((item) => ({ url: item.url, type: item.type || "image" }));
+      }
+      if (p.imageUrl) {
+        return [{ url: p.imageUrl, type: "image" }];
+      }
+      return [{ url: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=60", type: "image" }];
+    }
+
+    function renderMediaStrip(p) {
+      const mediaItems = getProductMedia(p);
+      return `
+        <div class="product-media-strip">
+          ${mediaItems.map((item) => {
+            if (item.type === "video") {
+              return `<div class="product-media-item"><video src="${item.url}" controls muted playsinline preload="metadata"></video></div>`;
+            }
+            return `<div class="product-media-item"><img src="${productImage(item.url)}" alt="${p.name}" /></div>`;
+          }).join("")}
+        </div>`;
+    }
+
     function productCard(p) {
       const out = p.stock <= 0;
       const category = normalizeCategoryName(p.category);
+      const media = renderMediaStrip(p);
       return `
         <article class="product">
-          <img src="${productImage(p.imageUrl)}" alt="${p.name}" />
+          ${media}
           <div class="body">
             <h3>${p.name}</h3>
             <p class="note">${category}</p>
@@ -1042,13 +1208,16 @@
       } else {
         el.innerHTML = data.orders.map((o) => {
           const items = o.items.map((i) => `
-            <div style='display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center;margin-bottom:8px;'>
+            <div style='display:grid;grid-template-columns:80px 1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;'>
               <img src='${productImage(i.imageUrl)}' alt='${i.name}' style='width:80px;height:80px;object-fit:cover;border-radius:8px;' />
               <div>
                 <b>${i.name}</b>
                 <span class='note'>INR ${i.price} x ${i.quantity}</span>
               </div>
+              <button class='ghost' onclick="openFeedbackModal('${i.productId}', '${o._id}', '${escapeHtml(i.name)}')">View Feedback</button>
+              ${o.orderStatus === "DELIVERED" ? `<button class='secondary' onclick="openFeedbackModal('${i.productId}', '${o._id}', '${escapeHtml(i.name)}', true)">Add Feedback</button>` : ""}
             </div>`).join("");
+
           return `<div class='list-item'>
             <b>Order #${o._id.slice(-6)}</b>
             ${items}
@@ -1057,6 +1226,90 @@
             <span class='note'>Tracking: ${(o.trackingLocation && o.trackingLocation.note) || "Pending update"}</span>
           </div>`;
         }).join("");
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    let feedbackActiveProductId = "";
+    let feedbackActiveOrderId = "";
+
+    function openFeedbackModal(productId, orderId, productName, allowSubmit = false) {
+      feedbackActiveProductId = productId;
+      feedbackActiveOrderId = orderId || "";
+      document.getElementById("feedbackTitle").textContent = `Feedback for ${productName}`;
+      document.getElementById("feedbackSubtitle").textContent = allowSubmit
+        ? "Add your review and media for the delivered product."
+        : "View reviews for this product.";
+      document.getElementById("feedbackMessage").value = "";
+      document.getElementById("feedbackMediaUrls").value = "";
+      document.getElementById("feedbackMediaFiles").value = "";
+      document.getElementById("feedbackMediaFiles").disabled = !allowSubmit;
+      document.getElementById("feedbackMessage").disabled = !allowSubmit;
+      document.querySelector(".feedback-form button").style.display = allowSubmit ? "inline-block" : "none";
+      document.getElementById("feedbackModal").classList.add("open");
+      loadProductFeedback(productId);
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById("feedbackModal").classList.remove("open");
+    }
+
+    async function loadProductFeedback(productId) {
+      const list = document.getElementById("feedbackList");
+      list.innerHTML = "<p class='note'>Loading feedback...</p>";
+      try {
+        const data = await request(`/api/products/${productId}/feedback`);
+        if (!data.feedback.length) {
+          list.innerHTML = "<p class='note'>No feedback yet for this product.</p>";
+          return;
+        }
+        list.innerHTML = data.feedback.map((item) => {
+          const media = (item.media || []).map((m) => {
+            if (m.type === "video") {
+              return `<div class='feedback-media-item'><video src='${m.url}' controls muted playsinline></video></div>`;
+            }
+            return `<div class='feedback-media-item'><img src='${m.url}' alt='Feedback media' /></div>`;
+          }).join("");
+          return `<div class='feedback-item'>
+            <div class='feedback-meta'>
+              <span><b>${item.userId && item.userId.name ? escapeHtml(item.userId.name) : "Customer"}</b></span>
+              <span>${new Date(item.createdAt).toLocaleString()}</span>
+            </div>
+            <p>${escapeHtml(item.message) || "No comment provided."}</p>
+            ${media ? `<div class='feedback-media'>${media}</div>` : ""}
+          </div>`;
+        }).join("");
+      } catch (e) {
+        list.innerHTML = `<p class='note'>Unable to load feedback: ${escapeHtml(e.message)}</p>`;
+      }
+    }
+
+    async function submitFeedback() {
+      try {
+        if (!feedbackActiveProductId || !feedbackActiveOrderId) {
+          throw new Error("Feedback target not selected.");
+        }
+        const message = document.getElementById("feedbackMessage").value.trim();
+        const mediaUrls = document.getElementById("feedbackMediaUrls").value.trim();
+        const mediaFiles = document.getElementById("feedbackMediaFiles");
+        const form = new FormData();
+        form.append("orderId", feedbackActiveOrderId);
+        form.append("message", message);
+        if (mediaUrls) form.append("mediaUrls", mediaUrls);
+        if (mediaFiles && mediaFiles.files.length) {
+          Array.from(mediaFiles.files).forEach((file) => form.append("media", file));
+        }
+        const data = await request(`/api/products/${feedbackActiveProductId}/feedback`, {
+          method: "POST",
+          body: form
+        });
+        setMsg("Feedback submitted successfully.");
+        loadProductFeedback(feedbackActiveProductId);
+      } catch (e) {
+        setMsg(e.message, true);
       }
     }
 

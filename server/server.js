@@ -35,6 +35,9 @@ let isDbConnected = false;
 const DB_RETRY_MS = Number(process.env.DB_RETRY_MS || 5000);
 let isConnectingDb = false;
 let hasEnsuredAdmin = false;
+let serverStarted = false;
+
+mongoose.set("strictQuery", false);
 
 const canSendEmailOtp = Boolean(SMTP_HOST && SMTP_USER && SMTP_PASS && OTP_SENDER_EMAIL);
 const canSendSmsOtp = Boolean(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER);
@@ -70,6 +73,30 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const detectMediaType = (source) => {
+  const url = String(source || "").toLowerCase();
+  if (url.includes("video") || url.match(/\.(mp4|mov|webm|ogg|m4v|avi|flv)(\?|$)/)) {
+    return "video";
+  }
+  return "image";
+};
+
+const buildMediaList = ({ fileEntries = [], urlList = [] }) => {
+  const media = [];
+  fileEntries.forEach((file) => {
+    media.push({
+      url: `/uploads/${file.filename}`,
+      type: detectMediaType(file.mimetype || file.originalname)
+    });
+  });
+  urlList.forEach((rawUrl) => {
+    const url = String(rawUrl || "").trim();
+    if (!url) return;
+    media.push({ url, type: detectMediaType(url) });
+  });
+  return media;
+};
+
 const corsOptions = {
   origin: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -88,18 +115,30 @@ app.use(express.json());
 app.use("/uploads", express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, "../client")));
 
+const startServer = () => {
+  if (serverStarted) return;
+  serverStarted = true;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+};
+
 const connectMongoWithRetry = async () => {
   if (isConnectingDb || isDbConnected) return;
   isConnectingDb = true;
+  console.log(`Connecting to MongoDB using URI: ${MONGO_URI}`);
 
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000
+    });
     isDbConnected = true;
     console.log("MongoDB Connected");
     if (!hasEnsuredAdmin) {
       await ensureAdminUser();
       hasEnsuredAdmin = true;
     }
+    startServer();
   } catch (err) {
     isDbConnected = false;
     console.error("MongoDB connection failed:", err.message);
@@ -117,11 +156,13 @@ mongoose.connection.on("connected", () => {
 
 mongoose.connection.on("disconnected", () => {
   isDbConnected = false;
+  console.warn("MongoDB disconnected. Retrying...");
   setTimeout(connectMongoWithRetry, DB_RETRY_MS);
 });
 
-mongoose.connection.on("error", () => {
+mongoose.connection.on("error", (err) => {
   isDbConnected = false;
+  console.error("MongoDB error:", err.message);
   setTimeout(connectMongoWithRetry, DB_RETRY_MS);
 });
 
@@ -156,6 +197,10 @@ const ProductSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   stock: { type: Number, default: 0 },
   imageUrl: { type: String, default: "" },
+  media: [{
+    url: { type: String, required: true },
+    type: { type: String, enum: ["image", "video"], default: "image" }
+  }],
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
@@ -215,6 +260,23 @@ const OrderSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now }
 });
+
+const FeedbackSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: "Order", required: true },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+  productName: { type: String, default: "" },
+  message: { type: String, default: "" },
+  media: [{
+    url: { type: String, required: true },
+    type: { type: String, enum: ["image", "video"], default: "image" }
+  }],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+FeedbackSchema.index({ userId: 1, orderId: 1, productId: 1 }, { unique: true });
+
+const Feedback = mongoose.model("Feedback", FeedbackSchema);
 
 const CustomRequestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -887,11 +949,19 @@ app.get("/api/products", async (req, res) => {
   return res.json({ products });
 });
 
-app.post("/api/products", auth, adminOnly, upload.single("image"), async (req, res) => {
+app.post("/api/products", auth, adminOnly, upload.fields([{ name: "image", maxCount: 1 }, { name: "media", maxCount: 20 }]), async (req, res) => {
   try {
-    const imageUrl = req.file
-      ? `/uploads/${req.file.filename}`
+    const imageUrl = req.files && req.files.image && req.files.image[0]
+      ? `/uploads/${req.files.image[0].filename}`
       : (req.body.imageUrl || "");
+
+    const mediaUrls = String(req.body.mediaUrls || "").split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+    const mediaFiles = (req.files && req.files.media) || [];
+    const mediaList = buildMediaList({ fileEntries: mediaFiles, urlList: mediaUrls });
+
+    if (!mediaList.length && imageUrl) {
+      mediaList.push({ url: imageUrl, type: detectMediaType(imageUrl) });
+    }
 
     const product = await Product.create({
       name: req.body.name,
@@ -900,6 +970,7 @@ app.post("/api/products", auth, adminOnly, upload.single("image"), async (req, r
       price: toNumber(req.body.price, 0),
       stock: toNumber(req.body.stock, 0),
       imageUrl,
+      media: mediaList,
       isActive: String(req.body.isActive ?? "true") !== "false"
     });
     await logActivity({
@@ -914,7 +985,7 @@ app.post("/api/products", auth, adminOnly, upload.single("image"), async (req, r
   }
 });
 
-app.put("/api/products/:id", auth, adminOnly, upload.single("image"), async (req, res) => {
+app.put("/api/products/:id", auth, adminOnly, upload.fields([{ name: "image", maxCount: 1 }, { name: "media", maxCount: 20 }]), async (req, res) => {
   try {
     const update = {
       updatedAt: new Date()
@@ -926,7 +997,13 @@ app.put("/api/products/:id", auth, adminOnly, upload.single("image"), async (req
     if (req.body.stock !== undefined) update.stock = toNumber(req.body.stock, 0);
     if (req.body.isActive !== undefined) update.isActive = String(req.body.isActive) !== "false";
     if (req.body.imageUrl !== undefined) update.imageUrl = req.body.imageUrl;
-    if (req.file) update.imageUrl = `/uploads/${req.file.filename}`;
+    if (req.files && req.files.image && req.files.image[0]) update.imageUrl = `/uploads/${req.files.image[0].filename}`;
+
+    const mediaUrls = String(req.body.mediaUrls || "").split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+    const mediaFiles = (req.files && req.files.media) || [];
+    if (mediaUrls.length || mediaFiles.length) {
+      update.media = buildMediaList({ fileEntries: mediaFiles, urlList: mediaUrls });
+    }
 
     const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true });
     if (!product) return res.status(404).json({ message: "Product not found" });
@@ -1237,6 +1314,88 @@ app.get("/api/orders", auth, async (req, res) => {
   return res.json({ orders });
 });
 
+app.post("/api/products/:productId/feedback", auth, upload.fields([{ name: "media", maxCount: 10 }]), async (req, res) => {
+  try {
+    const { orderId, message } = req.body;
+    const productId = req.params.productId;
+    if (!orderId) {
+      return res.status(400).json({ message: "orderId is required" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    if (String(order.userId) !== String(req.user._id) && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Not authorized to add feedback for this order" });
+    }
+    if (order.orderStatus !== "DELIVERED") {
+      return res.status(400).json({ message: "Feedback can only be added after delivery" });
+    }
+    const orderedItem = (order.items || []).find((i) => String(i.productId) === String(productId));
+    if (!orderedItem) {
+      return res.status(400).json({ message: "Product not part of this order" });
+    }
+
+    const mediaUrls = String(req.body.mediaUrls || "").split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+    const mediaFiles = (req.files && req.files.media) || [];
+    const mediaList = buildMediaList({ fileEntries: mediaFiles, urlList: mediaUrls });
+
+    const feedbackData = {
+      userId: req.user._id,
+      orderId: order._id,
+      productId,
+      productName: orderedItem.name || "",
+      message: String(message || "").trim(),
+      media: mediaList,
+      updatedAt: new Date()
+    };
+
+    let feedback = await Feedback.findOne({ userId: req.user._id, orderId: order._id, productId });
+    if (feedback) {
+      feedback.message = feedbackData.message;
+      feedback.media = feedbackData.media;
+      feedback.updatedAt = new Date();
+      await feedback.save();
+    } else {
+      feedback = await Feedback.create(feedbackData);
+    }
+
+    await logActivity({
+      action: "FEEDBACK_SUBMITTED",
+      user: req.user,
+      req,
+      meta: { feedbackId: feedback._id, productId, orderId: order._id }
+    });
+
+    return res.status(201).json({ message: "Feedback submitted", feedback });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Feedback already exists for this product order" });
+    }
+    return res.status(500).json({ message: "Failed to submit feedback", error: error.message });
+  }
+});
+
+app.get("/api/products/:productId/feedback", auth, async (req, res) => {
+  const feedback = await Feedback.find({ productId: req.params.productId })
+    .sort({ createdAt: -1 })
+    .populate("userId", "name");
+  return res.json({ feedback });
+});
+
+app.get("/api/admin/feedback", auth, adminOnly, async (req, res) => {
+  const query = {};
+  if (req.query.productId) {
+    query.productId = req.query.productId;
+  }
+  const feedback = await Feedback.find(query)
+    .sort({ createdAt: -1 })
+    .populate("userId", "name email")
+    .populate("productId", "name");
+  return res.json({ feedback });
+});
+
 app.post("/api/custom-requests", auth, upload.single("referenceImage"), async (req, res) => {
   try {
     const title = String(req.body.title || "").trim();
@@ -1370,7 +1529,7 @@ app.get("/api/admin/analytics", auth, adminOnly, async (_req, res) => {
     .sort({ createdAt: -1 })
     .limit(20);
   const products = await Product.find()
-    .select("name category price stock isActive updatedAt imageUrl")
+    .select("name category price stock isActive updatedAt imageUrl media")
     .sort({ updatedAt: -1, createdAt: -1 })
     .limit(30);
   const recentActivities = await Activity.find()
@@ -1432,5 +1591,3 @@ app.get(/.*/, (req, res) => {
   }
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
