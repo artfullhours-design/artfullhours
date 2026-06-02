@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+ $ErrorActionPreference = "Stop"
 
 $root = "C:\Users\prati\OneDrive\Desktop\artfullhours"
 $mongoExe = Join-Path $root "tools\mongodb\mongodb-win32-x86_64-windows-8.2.7\bin\mongod.exe"
