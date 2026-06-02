@@ -26,8 +26,12 @@ $mongoProcess = Get-CimInstance Win32_Process | Where-Object {
 } | Select-Object -First 1
 
 if (-not $mongoProcess) {
+  Write-Output "Starting MongoDB..."
   Start-Process -FilePath $mongoExe -ArgumentList "--dbpath `"$dbPath`" --bind_ip 127.0.0.1 --port 27017" -WorkingDirectory $root -WindowStyle Minimized | Out-Null
-  Start-Sleep -Seconds 2
+  Write-Output "Waiting for MongoDB to initialize (5 seconds)..."
+  Start-Sleep -Seconds 5
+} else {
+  Write-Output "MongoDB process already running (PID: $($mongoProcess.ProcessId))"
 }
 
 $nodeProcess = Get-CimInstance Win32_Process | Where-Object {
@@ -35,30 +39,42 @@ $nodeProcess = Get-CimInstance Win32_Process | Where-Object {
 } | Select-Object -First 1
 
 if (-not $nodeProcess) {
+  Write-Output "Starting Node.js server..."
   Start-Process -FilePath "node" -ArgumentList "`"$serverScript`"" -WorkingDirectory $root -WindowStyle Minimized | Out-Null
+} else {
+  Write-Output "Node.js process already running (PID: $($nodeProcess.ProcessId))"
 }
 
-$maxChecks = 20
+$maxChecks = 30
+$checkInterval = 500
 $started = $false
+
+Write-Output "Checking server health at $healthUrl (max 15 seconds)..."
 
 for ($i = 0; $i -lt $maxChecks; $i++) {
   try {
     $health = Invoke-RestMethod -Uri $healthUrl -TimeoutSec 2
     if ($health.server -eq "online") {
       $started = $true
+      Write-Output "✓ Server is online"
+      Write-Output "✓ Database: $($health.database)"
       break
     }
   } catch {
+    # Silently continue
   }
-  Start-Sleep -Milliseconds 500
+  Start-Sleep -Milliseconds $checkInterval
 }
 
 if (-not $started) {
   Write-Error "Backend did not become reachable at $healthUrl."
-  Write-Output "Checks to run:"
-  Write-Output "1) Ensure Node.js is installed and available in PATH"
-  Write-Output "2) Run npm install in server and project root"
-  Write-Output "3) Check that port 5000 is not blocked by another process"
+  Write-Output ""
+  Write-Output "Troubleshooting steps:"
+  Write-Output "1) Check that Node.js is installed: node --version"
+  Write-Output "2) Verify MongoDB is running: Get-Process mongod"
+  Write-Output "3) Check port 5000 is available: netstat -ano | findstr :5000"
+  Write-Output "4) View server logs: Check for errors in server/server.js"
+  Write-Output "5) Ensure npm dependencies are installed in server/ folder"
   exit 1
 }
 
