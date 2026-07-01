@@ -1,22 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Static build complete'",
-  "installCommand": "npm install && cd server && npm install && cd ..",
-  "public": "client",
-  "functions": {
-    "server/server.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "server/server.js"
+      "src": "server/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "server/server.js"
     }
   ]
 }
