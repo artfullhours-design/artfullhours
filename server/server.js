@@ -116,7 +116,7 @@ app.use("/uploads", express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, "../client")));
 
 const startServer = () => {
-  if (serverStarted) return;
+  if (serverStarted || process.env.VERCEL) return;
   serverStarted = true;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 };
@@ -1589,3 +1589,5 @@ app.get(/.*/, (req, res) => {
   }
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
+
+module.exports = app;
