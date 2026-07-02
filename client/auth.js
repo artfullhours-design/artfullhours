@@ -1,5 +1,6 @@
 const AUTH_TOKEN_KEY = "token";
 const API_OVERRIDE_KEY = "apiBaseUrl";
+const DEFAULT_API_BASE = "https://artfullhours.onrender.com";
 
 function normalizeBase(base) {
   return String(base || "").trim().replace(/\/$/, "");
@@ -8,26 +9,21 @@ function normalizeBase(base) {
 function unique(list) {
   return Array.from(new Set(list.filter(Boolean)));
 }
-
 function getApiCandidates() {
-  const { protocol, hostname, port } = window.location;
   const override = normalizeBase(localStorage.getItem(API_OVERRIDE_KEY));
-  const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
-  const fromLocation = normalizeBase(`${window.location.origin}`);
 
   const candidates = [];
-  if (override) candidates.push(override);
 
-  if (protocol === "file:") {
-    candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
-    return unique(candidates);
+  if (override) {
+    candidates.push(override);
   }
 
-  if (isLocalhost && port && port !== "5000") {
-    candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
-  }
+  // 🔥 PRODUCTION BACKEND (Render)
+  candidates.push(DEFAULT_API_BASE);
 
-  candidates.push(fromLocation, "", "http://localhost:5000", "http://127.0.0.1:5000");
+  // Local fallback (for development)
+  candidates.push("http://localhost:5000", "http://127.0.0.1:5000");
+
   return unique(candidates);
 }
 
