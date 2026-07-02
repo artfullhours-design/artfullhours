@@ -9,6 +9,7 @@ function normalizeBase(base) {
 function unique(list) {
   return Array.from(new Set(list.filter(Boolean)));
 }
+
 function getApiCandidates() {
   const override = normalizeBase(localStorage.getItem(API_OVERRIDE_KEY));
 
@@ -26,7 +27,6 @@ function getApiCandidates() {
 
   return unique(candidates);
 }
-
 let activeApiBase = getApiCandidates()[0] || "";
 
 function rememberWorkingBase(base) {
@@ -158,7 +158,7 @@ async function handleSignup() {
       password
     };
 
-    const data = await apiRequest(API_BASE_URL + "/api/auth/signup", {
+    const data = await apiRequest("/api/auth/signup", {
       method: "POST",
       body: JSON.stringify(payload)
     });
@@ -200,7 +200,7 @@ async function handleLogin() {
       throw new Error("Please enter your email and password");
     }
 
-    const data = await apiRequest(API_BASE_URL + "/api/auth/login", {
+    const data = await apiRequest("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ identifier, password })
     });
