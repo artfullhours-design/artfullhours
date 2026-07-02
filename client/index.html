@@ -362,7 +362,7 @@
   </div>
 
   <script>
-    // Safe path builder for both server and file:// modes
+    // Safe path builder for both  server and file:// modes
     function buildClientPath(path) {
       if (window.location.protocol === "file:") {
         return path.replace(/^\//, "");  // Remove leading / for file://
