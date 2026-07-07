@@ -54,6 +54,16 @@ const emailTransporter = canSendEmailOtp
     }
   })
   : null;
+  if (emailTransporter) {
+  emailTransporter.verify((error, success) => {
+    if (error) {
+      console.error("SMTP VERIFY FAILED:");
+      console.error(error);
+    } else {
+      console.log("SMTP VERIFIED SUCCESSFULLY");
+    }
+  });
+}
 
 const twilioClient = canSendSmsOtp ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) : null;
 const canUseRazorpay = Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET);
@@ -402,9 +412,11 @@ const sendOtpToUser = async (user, otp, purpose) => {
       });
       result.deliveredVia.push("email");
     } catch (error) {
-      result.errors.push(`Email send failed: ${error.message}`);
-    }
-  }
+  console.error("SEND MAIL ERROR:");
+  console.error(error);
+
+  result.errors.push(`Email send failed: ${error.message}`);
+}
 
   if (canSendSmsOtp && user.phone) {
     const to = toE164India(user.phone);
@@ -731,14 +743,11 @@ app.post("/api/auth/request-otp", async (req, res) => {
     });
 
     if (delivery.demoMode) {
-      return res.json({
-        message: "OTP generated in demo mode. Configure SMTP or Twilio env values for live delivery.",
-        otp,
-        deliveredVia: [],
-        deliveryErrors: delivery.errors,
-        expiresInMinutes: 10
-      });
-    }
+  return res.status(500).json({
+    message: "Email sending failed",
+    errors: delivery.errors
+  });
+}
 
     return res.json({
       message: `OTP sent successfully via ${delivery.deliveredVia.join(" and ")}`,
