@@ -37,6 +37,11 @@ let isConnectingDb = false;
 let hasEnsuredAdmin = false;
 
 const canSendEmailOtp = Boolean(SMTP_HOST && SMTP_USER && SMTP_PASS && OTP_SENDER_EMAIL);
+console.log("SMTP_HOST =", SMTP_HOST);
+console.log("SMTP_USER =", SMTP_USER);
+console.log("OTP_SENDER_EMAIL =", OTP_SENDER_EMAIL);
+console.log("SMTP_PASS exists =", !!SMTP_PASS);
+console.log("canSendEmailOtp =", canSendEmailOtp);
 const canSendSmsOtp = Boolean(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER);
 const emailTransporter = canSendEmailOtp
   ? nodemailer.createTransport({
