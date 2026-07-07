@@ -19,7 +19,7 @@ const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET || "change_this_in_env";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "artfullhours@gmail.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ArtFullHoursAdmin@123";
-const OTP_SENDER_EMAIL = process.env.OTP_SENDER_EMAIL || "";
+const OTP_SENDER_EMAIL = process.env.OTP_SENDER_EMAIL || "artfullhours@gmail.com";
 const SMTP_HOST = process.env.SMTP_HOST || "";
 const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
 const SMTP_SECURE = String(process.env.SMTP_SECURE || "false") === "true";
