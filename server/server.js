@@ -54,17 +54,15 @@ const emailTransporter = canSendEmailOtp
     }
   })
   : null;
-  if (emailTransporter) {
+if (emailTransporter) {
   emailTransporter.verify((error, success) => {
     if (error) {
-      console.error("SMTP VERIFY FAILED:");
-      console.error(error);
+      console.error("SMTP VERIFY FAILED:", error);
     } else {
       console.log("SMTP VERIFIED SUCCESSFULLY");
     }
   });
 }
-
 const twilioClient = canSendSmsOtp ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) : null;
 const canUseRazorpay = Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET);
 const razorpayClient = canUseRazorpay
@@ -417,6 +415,7 @@ const sendOtpToUser = async (user, otp, purpose) => {
 
   result.errors.push(`Email send failed: ${error.message}`);
 }
+  }
 
   if (canSendSmsOtp && user.phone) {
     const to = toE164India(user.phone);
@@ -743,10 +742,10 @@ app.post("/api/auth/request-otp", async (req, res) => {
     });
 
     if (delivery.demoMode) {
-  return res.status(500).json({
-    message: "Email sending failed",
-    errors: delivery.errors
-  });
+    return res.status(500).json({
+        message: "Email sending failed",
+        errors: delivery.errors
+    });
 }
 
     return res.json({
