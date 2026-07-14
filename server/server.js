@@ -10,9 +10,12 @@ const Razorpay = require("razorpay");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
+const dns = require("dns");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const app = express();
+dns.setDefaultResultOrder("ipv4first");
+require("net").setDefaultAutoSelectFamily(false);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -43,16 +46,20 @@ console.log("OTP_SENDER_EMAIL =", OTP_SENDER_EMAIL);
 console.log("SMTP_PASS exists =", !!SMTP_PASS);
 console.log("canSendEmailOtp =", canSendEmailOtp);
 const canSendSmsOtp = Boolean(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER);
+
 const emailTransporter = canSendEmailOtp
   ? nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_SECURE,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    }
-  })
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    })
   : null;
 if (emailTransporter) {
   emailTransporter.verify((error, success) => {
